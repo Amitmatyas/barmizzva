@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>PDF ללא כפתורים</title>
+  <style>
+    body {
+      margin: 0;
+      direction: rtl;
+    }
+    #pdf-container {
+      position: relative;
+      width: 100%;
+      max-width: 1000px;
+      margin: auto;
+    }
+    canvas {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    a {
+      position: absolute;
+      z-index: 2;
+    }
+  </style>
+</head>
+<body>
+  <div id="pdf-container"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script>
+    const url = 'document.pdf'; // אם שמת בתיקייה, שים 'pdf/document.pdf'
+
+    const container = document.getElementById('pdf-container');
+
+    pdfjsLib.getDocument(url).promise.then(pdf => {
+      pdf.getPage(1).then(page => {
+        const scale = 1.5;
+        const viewport = page.getViewport({ scale });
+
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        container.appendChild(canvas);
+
+        page.render({ canvasContext: context, viewport: viewport });
+
+        page.getAnnotations().then(annotations => {
+          annotations.forEach(function (annotation) {
+            if (annotation.subtype === 'Link' && annotation.url) {
+              const link = document.createElement('a');
+              link.href = annotation.url;
+              link.target = '_blank';
+              link.style.left = (annotation.rect[0] * scale) + 'px';
+              link.style.top = (viewport.height - annotation.rect[3] * scale) + 'px';
+              link.style.width = ((annotation.rect[2] - annotation.rect[0]) * scale) + 'px';
+              link.style.height = ((annotation.rect[3] - annotation.rect[1]) * scale) + 'px';
+              link.style.background = 'rgba(0,0,0,0)';
+              container.appendChild(link);
+            }
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>
