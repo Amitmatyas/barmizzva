@@ -125,15 +125,29 @@
         @media (max-width: 768px) {
             .pdf-container {
                 width: 98vw;
-                height: 90vh;
+                height: auto; /* מאפשר לכפתור להיות גלוי מתחת לתוכן */
+                min-height: 80vh; /* שומר על גובה מינימלי עבור תוכן */
                 margin: 10px auto;
+                /* במובייל, כשאין iframe, נרצה למרכז את הכפתור */
+                display: flex; /* כדי שיוכל למרכז את האלמנטים */
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+            }
+            .pdf-container iframe {
+                display: none; /* הסתר את ה-iframe במובייל */
+            }
+            .download-button-container {
+                display: block !important; /* תמיד הצג במובייל */
+                width: 100%; /* כדי שימרכז את הכפתור בתוכו */
             }
         }
 
         @media (max-width: 480px) {
             .pdf-container {
                 width: 100vw;
-                height: 85vh;
+                height: auto;
+                min-height: 80vh;
                 margin: 0;
                 border: none;
                 box-shadow: none;
@@ -156,16 +170,16 @@
     </div>
 
     <div id="pdf-display-container" class="pdf-container">
-        <iframe id="pdf-iframe" src="" type="application/pdf" style="display: none;">
+        <iframe id="pdf-iframe" src="" type="application/pdf">
             <p>הדפדפן שלך אינו תומך בהצגת קבצי PDF.
             <a href="document.pdf" target="_blank">לחץ כאן כדי להוריד את קובץ ה-PDF.</a></p>
         </iframe>
         <div id="download-btn-container" class="download-button-container">
             <a href="document.pdf" target="_blank" class="download-button">
-                פתח את ההזמנה באפליקציית PDF
+                פתח/הורד את ההזמנה (PDF)
             </a>
             <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
-                אם הלינקים אינם פעילים, מומלץ לפתוח באפליקציה חיצונית.
+                מומלץ לפתוח באפליקציה חיצונית לצפייה מלאה ושימוש בלינקים.
             </p>
         </div>
     </div>
@@ -176,11 +190,23 @@
             const pdfDisplayContainer = document.getElementById('pdf-display-container');
             const pdfIframe = document.getElementById('pdf-iframe');
             const downloadButtonContainer = document.getElementById('download-btn-container');
-            const pdfSource = "document.pdf#toolbar=0&navpanes=0&page=1"; // נתיב לקובץ ה-PDF
+            const pdfSource = "document.pdf"; // נתיב לקובץ ה-PDF (בלי הפרמטרים של הסרגל, כדי למקסם תאימות הורדה)
 
-            // טען את ה-PDF ברקע מיד עם טעינת הדף
-            // אך אל תציג אותו עדיין
-            pdfIframe.src = pdfSource;
+            // בדוק אם זה מכשיר מובייל
+            // נשתמש ב-matchMedia כדי לזהות מכשירים קטנים בדומה ל-CSS
+            const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
+            // אם זה מובייל, טען את ה-iframe רק אם תצוגה מקדימה נדרשת
+            // אחרת, פשוט נסמוך על הלינק הישיר.
+            if (!isMobile) {
+                // טען את ה-PDF ברקע מיד עם טעינת הדף, אם זה לא מובייל
+                // הפרמטרים toolbar=0&navpanes=0&page=1 מיועדים בעיקר לתצוגה בתוך הדפדפן
+                pdfIframe.src = pdfSource + "#toolbar=0&navpanes=0&page=1";
+            } else {
+                // במובייל, הסתר את ה-iframe לחלוטין עוד לפני ה-display: none
+                pdfIframe.style.display = 'none';
+            }
+
 
             // המתן 3 שניות
             setTimeout(function() {
@@ -190,20 +216,17 @@
                     loadingScreen.style.display = 'none'; // הסתרת מסך הטעינה לחלוטין
                     document.body.style.overflow = 'auto'; // החזרת גלילה אם נדרש
 
-                    // הצג את ה-PDF
-                    pdfIframe.style.display = 'block';
-                    pdfDisplayContainer.style.display = 'flex'; // מציג את הקונטיינר של ה-PDF
-
-                    // בדוק אם זה מכשיר מובייל או דפדפן שעלול להיתקל בבעיות
-                    // ניתן להשתמש ב-user agent או בגודל מסך
-                    const isMobile = /Mobi|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+                    // הצג את הקונטיינר של ה-PDF
+                    pdfDisplayContainer.style.display = 'flex';
 
                     if (isMobile) {
-                        // הצג את כפתור ההורדה/פתיחה באפליקציה חיצונית למכשירי מובייל
+                        // במובייל, הצג רק את כפתור ההורדה
                         downloadButtonContainer.style.display = 'block';
-                        // הסתר את ה-iframe אם נרצה לכפות פתיחה חיצונית במובייל בלבד
-                        // pdfIframe.style.display = 'none';
-                        // הערה: השארת ה-iframe גלוי מאפשרת למשתמש לנסות לצפות בו ואז להשתמש בכפתור
+                    } else {
+                        // בדסקטופ, הצג את ה-iframe (שכבר נטען)
+                        pdfIframe.style.display = 'block';
+                        // וודא שכפתור ההורדה מוסתר
+                        downloadButtonContainer.style.display = 'none';
                     }
 
                 }, { once: true });
