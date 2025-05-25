@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>הטמעת PDF עם קישורים ועמוד ספציפי</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl; /* כדי לתמוך בעברית */
+            text-align: right; /* כדי לתמוך בעברית */
+            margin: 20px;
+        }
+        .pdf-container {
+            width: 80%; /* התאם את הרוחב לפי הצורך */
+            height: 600px; /* התאם את הגובה לפי הצורך */
+            margin: 0 auto;
+            border: 1px solid #ccc;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>ה-PDF המוטמע שלך</h1>
+
+    <div class="pdf-container">
+        <iframe src="./your_document.pdf#toolbar=0&navpanes=0&page=1" type="application/pdf">
+            <p>הדפדפן שלך אינו תומך בהצגת קבצי PDF.
+            <a href="./your_document.pdf" target="_blank">לחץ כאן כדי להוריד את קובץ ה-PDF.</a></p>
+        </iframe>
+    </div>
+
+    <p>
+        ודא שקובץ ה-PDF שלך (your_document.pdf) נמצא באותה תיקייה כמו קובץ ה-HTML, או ציין נתיב מלא אליו.
+        הקישורים הפנימיים בתוך קובץ ה-PDF עצמו (אם יש כאלה) אמורים לפעול כרגיל בתוך המציג.
+    </p>
+
+</body>
+</html>
