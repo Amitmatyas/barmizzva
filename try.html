@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>הזמנה לבר מצווה</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✉️</text></svg>">
+    <style>
+        body {
+            font-family: 'Heebo', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            text-align: center;
+            overflow: hidden; /* מונע גלילה במהלך הטעינה */
+        }
+
+        /* מסך הטעינה */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+            box-sizing: border-box;
+        }
+
+        .loading-logo {
+            max-width: 120px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .loading-title {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        .loading-text {
+            color: #F58221;
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-top: 0;
+        }
+
+        /* קונטיינר לתוכן שמוצג אחרי הטעינה - מוסתר כברירת מחדל */
+        #content-container {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px 0;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        /* תצוגת PDF למחשב */
+        .desktop-view {
+            width: 90vw;
+            height: 90vh;
+            max-width: 1000px;
+            max-height: 1200px;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex; /* יופעל ע"י JS */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .desktop-view iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            object-fit: contain;
+        }
+
+        /* תצוגה מיוחדת לאנדרואיד */
+        .android-view {
+            display: flex; /* יופעל ע"י JS */
+            flex-direction: column;
+            align-items: center;
+            max-width: 500px;
+            width: 90%;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .android-image {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .android-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .action-button {
+            background-color: #F58221;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+            transition: background-color 0.3s ease;
+        }
+
+        .action-button:hover {
+            background-color: #e06e10;
+        }
+
+        .action-button img {
+            height: 24px; /* גודל ברירת מחדל לאייקונים בכפתורים */
+            width: 24px;
+        }
+
+        /* הגדלת תמונת אישור הגעה ספציפית */
+        .action-button .arrival-icon {
+            height: 40px; /* גודל מוגדל לאייקון אישור הגעה */
+            width: 40px;
+        }
+
+        /* מובייל כללי - מכסה גם אייפון וגם אנדרואיד ברוחב קטן */
+        @media (max-width: 768px) {
+            .desktop-view {
+                display: none !important; /* וודא שה-iframe מוסתר במובייל */
+            }
+            #content-container {
+                justify-content: flex-start;
+                height: auto;
+                min-height: 100vh;
+                padding: 20px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div class="loading-container">
+            <img src="https://i.postimg.cc/1zr32mFp/Planet-Logo-Israel-cinema-svg-1.png" alt="לוגו פלאנט" class="loading-logo">
+            <h1 class="loading-title">בר המצווה של עמית מטיאס</h1>
+            <p class="loading-text">טוען את ההזמנה...</p>
+        </div>
+    </div>
+
+    <div id="content-container">
+        <div id="desktop-view" class="desktop-view">
+            <iframe id="pdf-iframe" src="files/document.pdf#toolbar=0&navpanes=0&page=1" type="application/pdf">
+                <p>הדפדפן שלך אינו תומך בהצגת קבצי PDF.
+                <a href="files/document.pdf" target="_blank">לחץ כאן כדי להוריד את קובץ ה-PDF.</a></p>
+            </iframe>
+        </div>
+
+        <div id="android-view" class="android-view">
+            <img src="https://imgur.com/c2qRovP.png" alt="הזמנה לבר מצווה" class="android-image">
+            <div class="android-buttons">
+                <a href="https://amitmatyas-barmizzva.netlify.app/cofirm" target="_blank" class="action-button">
+                    <img src="https://imgur.com/5yj7XXm.png" alt="אישור הגעה" class="arrival-icon"> אישורי הגעה
+                </a>
+                <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&dates=20250710T150000Z%2F20250710T183000Z&location=%D7%99%D7%A1%20%D7%A4%D7%9C%D7%90%D7%A0%D7%98%20%D7%97%D7%99%D7%A4%D7%94%2C%20%D7%A1%D7%99%D7%A0%D7%9E%D7%95%D7%9C%2C%20%D7%A9%D7%93%D7%A8%D7%95%D7%AA%20%D7%94%D7%94%D7%A1%D7%AA%D7%93%D7%A8%D7%95%D7%AA%2055%2C%20%D7%97%D7%99%D7%A4%D7%94%2C%20%D7%99%D7%A9%D7%A8%D7%90%D7%9C&text=%D7%91%D7%A8%20%D7%9E%D7%A6%D7%95%D7%95%D7%94%20%D7%9C%D7%A2%D7%9E%D7%99%D7%AA%20%D7%9E%D7%98%D7%99%D7%90%D7%A1" target="_blank" class="action-button">
+                    <img src="https://i.imgur.com/CB9uybL.png" alt="יומן">
+                    שמור ביומן
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const loadingScreen = document.getElementById('loading-screen');
+            const contentContainer = document.getElementById('content-container');
+            const desktopView = document.getElementById('desktop-view');
+            const androidView = document.getElementById('android-view');
+            const pdfIframe = document.getElementById('pdf-iframe');
+
+            // זיהוי פלטפורמה מדויק
+            const userAgent = navigator.userAgent;
+            const isAndroid = /Android/i.test(userAgent) && window.matchMedia("(max-width: 768px)").matches;
+            const isIOS = /iPhone|iPad|iPod/i.test(userAgent) && window.matchMedia("(max-width: 768px)").matches;
+            const isDesktop = !isAndroid && !isIOS;
+
+            // המתן 3 שניות, ואז הסתר את מסך הטעינה והצג את התוכן המתאים
+            setTimeout(function() {
+                // הסתרת מסך הטעינה בפייד-אאוט
+                loadingScreen.classList.add('hidden');
+                loadingScreen.addEventListener('transitionend', function() {
+                    loadingScreen.style.display = 'none'; // הסתרת מסך הטעינה לחלוטין
+                    document.body.style.overflow = 'auto'; // החזרת גלילה במידת הצורך
+
+                    // הצגת הקונטיינר הראשי של התוכן
+                    contentContainer.style.display = 'flex';
+
+                    if (isAndroid) {
+                        // באנדרואיד: הצג את התמונה והכפתורים
+                        androidView.style.display = 'flex';
+                        desktopView.style.display = 'none';
+                    } else if (isIOS) {
+                        // באייפון: הפנה ישירות לקובץ ה-PDF
+                        window.location.replace("files/document.pdf");
+                        // נמנע מלהציג את ה-content-container רגעית לפני ההפניה
+                        contentContainer.style.display = 'none';
+                    } else { // מחשב שולחני
+                        // במחשב שולחני: הצג את ה-PDF ב-iframe
+                        desktopView.style.display = 'flex';
+                        androidView.style.display = 'none';
+                    }
+                }, { once: true });
+            }, 3000); // 3 שניות
+        });
+    </script>
+
+</body>
+</html>
