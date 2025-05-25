@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>הזמנה לבר מצווה</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✉️</text></svg>">
+    <style>
+        body {
+            font-family: 'Heebo', sans-serif;
+            display: flex;
+            flex-direction: column; /* מאפשר אלמנטים אחד מתחת לשני */
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0; /* רקע בהיר */
+            text-align: center; /* מרכז טקסט ותמונות */
+            overflow: hidden; /* למנוע גלילה במהלך הטעינה */
+        }
+
+        /* סגנונות למסך הטעינה */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f0f0f0; /* רקע של מסך הטעינה */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* ודא שמסך הטעינה מעל הכל */
+            opacity: 1; /* מתחיל גלוי */
+            transition: opacity 0.5s ease-out; /* אנימציה להעלמת המסך */
+        }
+
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none; /* מונע לחיצות על המסך לאחר היעלמות */
+        }
+
+        .loading-container {
+            background-color: #fff; /* רקע לבן למלבן הטעינה */
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+            box-sizing: border-box;
+        }
+
+        .loading-logo {
+            max-width: 120px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .loading-title {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        .loading-text {
+            color: #F58221; /* צבע כתום */
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-top: 0;
+        }
+
+        /* סגנונות לקונטיינר ה-PDF */
+        .pdf-container {
+            width: 90vw;
+            height: 90vh;
+            max-width: 1000px;
+            max-height: 1200px;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: none; /* נסתר כברירת מחדל, יוצג לאחר הטעינה */
+            flex-direction: column; /* מאפשר כפתור מתחת ל-iframe */
+            justify-content: center;
+            align-items: center;
+            position: relative; /* למיקום הכפתור בתוך הקונטיינר */
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            object-fit: contain;
+        }
+
+        .download-button-container {
+            display: none; /* נסתר כברירת מחדל, יוצג רק כשצריך */
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .download-button {
+            background-color: #F58221; /* כפתור כתום */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            text-decoration: none; /* הסר קו תחתון מהלינק */
+            display: inline-block; /* כדי לאפשר margin-top */
+            transition: background-color 0.3s ease;
+        }
+
+        .download-button:hover {
+            background-color: #e06e10; /* גוון כהה יותר במעבר עכבר */
+        }
+
+        /* Media Queries עבור ה-PDF */
+        @media (max-width: 768px) {
+            .pdf-container {
+                width: 98vw;
+                height: 90vh;
+                margin: 10px auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .pdf-container {
+                width: 100vw;
+                height: 85vh;
+                margin: 0;
+                border: none;
+                box-shadow: none;
+            }
+            .download-button {
+                font-size: 1em;
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div class="loading-container">
+            <img src="https://i.postimg.cc/1zr32mFp/Planet-Logo-Israel-cinema-svg-1.png" alt="לוגו פלאנט" class="loading-logo">
+            <h1 class="loading-title">בר המצווה של עמית מטיאס</h1>
+            <p class="loading-text">טוען את ההזמנה...</p>
+        </div>
+    </div>
+
+    <div id="pdf-display-container" class="pdf-container">
+        <iframe id="pdf-iframe" src="" type="application/pdf" style="display: none;">
+            <p>הדפדפן שלך אינו תומך בהצגת קבצי PDF.
+            <a href="document.pdf" target="_blank">לחץ כאן כדי להוריד את קובץ ה-PDF.</a></p>
+        </iframe>
+        <div id="download-btn-container" class="download-button-container">
+            <a href="document.pdf" target="_blank" class="download-button">
+                פתח את ההזמנה באפליקציית PDF
+            </a>
+            <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+                אם הלינקים אינם פעילים, מומלץ לפתוח באפליקציה חיצונית.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const loadingScreen = document.getElementById('loading-screen');
+            const pdfDisplayContainer = document.getElementById('pdf-display-container');
+            const pdfIframe = document.getElementById('pdf-iframe');
+            const downloadButtonContainer = document.getElementById('download-btn-container');
+            const pdfSource = "document.pdf#toolbar=0&navpanes=0&page=1"; // נתיב לקובץ ה-PDF
+
+            // טען את ה-PDF ברקע מיד עם טעינת הדף
+            // אך אל תציג אותו עדיין
+            pdfIframe.src = pdfSource;
+
+            // המתן 3 שניות
+            setTimeout(function() {
+                // הסתרת מסך הטעינה בפייד-אאוט
+                loadingScreen.classList.add('hidden');
+                loadingScreen.addEventListener('transitionend', function() {
+                    loadingScreen.style.display = 'none'; // הסתרת מסך הטעינה לחלוטין
+                    document.body.style.overflow = 'auto'; // החזרת גלילה אם נדרש
+
+                    // הצג את ה-PDF
+                    pdfIframe.style.display = 'block';
+                    pdfDisplayContainer.style.display = 'flex'; // מציג את הקונטיינר של ה-PDF
+
+                    // בדוק אם זה מכשיר מובייל או דפדפן שעלול להיתקל בבעיות
+                    // ניתן להשתמש ב-user agent או בגודל מסך
+                    const isMobile = /Mobi|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+
+                    if (isMobile) {
+                        // הצג את כפתור ההורדה/פתיחה באפליקציה חיצונית למכשירי מובייל
+                        downloadButtonContainer.style.display = 'block';
+                        // הסתר את ה-iframe אם נרצה לכפות פתיחה חיצונית במובייל בלבד
+                        // pdfIframe.style.display = 'none';
+                        // הערה: השארת ה-iframe גלוי מאפשרת למשתמש לנסות לצפות בו ואז להשתמש בכפתור
+                    }
+
+                }, { once: true });
+            }, 3000); // 3 שניות
+        });
+    </script>
+
+</body>
+</html>
