@@ -35,6 +35,7 @@
             justify-content: center;
             align-items: center;
             z-index: 1000; /* ודא שמסך הטעינה מעל הכל */
+            opacity: 1; /* מתחיל גלוי */
             transition: opacity 0.5s ease-out; /* אנימציה להעלמת המסך */
         }
 
@@ -125,7 +126,7 @@
     </div>
 
     <div id="pdf-display-container" class="pdf-container">
-        <iframe id="pdf-iframe" src="document.pdf#toolbar=0&navpanes=0&page=1" type="application/pdf">
+        <iframe id="pdf-iframe" src="" type="application/pdf" style="display: none;">
             <p>הדפדפן שלך אינו תומך בהצגת קבצי PDF.
             <a href="document.pdf" target="_blank">לחץ כאן כדי להוריד את קובץ ה-PDF.</a></p>
         </iframe>
@@ -136,31 +137,30 @@
             const loadingScreen = document.getElementById('loading-screen');
             const pdfDisplayContainer = document.getElementById('pdf-display-container');
             const pdfIframe = document.getElementById('pdf-iframe');
+            const pdfSource = "document.pdf#toolbar=0&navpanes=0&page=1"; // נתיב לקובץ ה-PDF
 
             // פונקציה להסתרת מסך הטעינה והצגת ה-PDF
             function showPdfAndHideLoading() {
-                loadingScreen.classList.add('hidden'); // הוספת קלאס להסתרת מסך הטעינה עם אנימציה
+                // מציג את ה-iframe עצמו (הוא כבר נטען ברקע)
+                pdfIframe.style.display = 'block';
+                pdfDisplayContainer.style.display = 'flex'; // מציג את הקונטיינר של ה-PDF
+                document.body.style.overflow = 'auto'; // החזרת גלילה אם נדרש
+
+                // הסתרת מסך הטעינה בפייד-אאוט
+                loadingScreen.classList.add('hidden');
                 loadingScreen.addEventListener('transitionend', function() {
                     loadingScreen.style.display = 'none'; // הסתרת מסך הטעינה לחלוטין לאחר האנימציה
-                    pdfDisplayContainer.style.display = 'flex'; // הצגת קונטיינר ה-PDF
-                    document.body.style.overflow = 'auto'; // החזרת גלילה אם נדרש
-                }, { once: true }); // ודא שהאירוע רץ רק פעם אחת
+                }, { once: true });
             }
 
-            // נסה לזהות מתי ה-iframe סיים לטעון
-            pdfIframe.onload = function() {
-                // נותן זמן קצר לוודא שהעיבוד הושלם
-                setTimeout(showPdfAndHideLoading, 500); // השהיה קלה של 0.5 שניות לאחר טעינת ה-PDF
-            };
+            // טען את ה-PDF ברקע מיד עם טעינת הדף
+            // אך אל תציג אותו עדיין
+            pdfIframe.src = pdfSource;
 
-            // אם ה-iframe לא מצליח לטעון (לדוגמה, קובץ לא קיים או שגיאת דפדפן),
-            // נציג את ה-PDF בכל זאת לאחר זמן קצוב
-            // זהו גיבוי למקרה שהאירוע onload לא נורה תמיד
+            // המתן 3 שניות, ואז הצג את ה-PDF והעלם את מסך הטעינה
             setTimeout(function() {
-                if (loadingScreen.style.display !== 'none') { // רק אם מסך הטעינה עדיין גלוי
-                    showPdfAndHideLoading();
-                }
-            }, 3000); // 3 שניות המתנה מקסימלית למסך הטעינה, גם אם ה-PDF לא נטען לגמרי
+                showPdfAndHideLoading();
+            }, 3000); // 3 שניות
         });
     </script>
 
