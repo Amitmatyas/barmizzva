@@ -12,26 +12,77 @@
     <style>
         body {
             font-family: 'Heebo', sans-serif;
-            margin: 0; /* הסר שוליים כברירת מחדל של הדפדפן */
-            padding: 0;
             display: flex;
-            justify-content: center; /* ממקם את התוכן במרכז */
+            justify-content: center;
             align-items: center;
-            min-height: 100vh; /* ודא שהגוף תופס את כל גובה המסך */
-            background-color: #f0f0f0; /* צבע רקע קל לעין */
-            direction: rtl; /* תמיכה בעברית */
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0; /* רקע בהיר */
+            text-align: center; /* מרכז טקסט ותמונות */
+            overflow: hidden; /* למנוע גלילה במהלך הטעינה */
         }
 
+        /* סגנונות למסך הטעינה */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f0f0f0; /* רקע של מסך הטעינה */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* ודא שמסך הטעינה מעל הכל */
+            transition: opacity 0.5s ease-out; /* אנימציה להעלמת המסך */
+        }
+
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none; /* מונע לחיצות על המסך לאחר היעלמות */
+        }
+
+        .loading-container {
+            background-color: #fff; /* רקע לבן למלבן הטעינה */
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+            box-sizing: border-box;
+        }
+
+        .loading-logo {
+            max-width: 120px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .loading-title {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        .loading-text {
+            color: #F58221; /* צבע כתום */
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-top: 0;
+        }
+
+        /* סגנונות לקונטיינר ה-PDF */
         .pdf-container {
-            width: 90vw; /* 90% מרוחב המסך (viewport width) */
-            height: 90vh; /* 90% מגובה המסך (viewport height) */
-            max-width: 1000px; /* רוחב מקסימלי במחשבים גדולים */
-            max-height: 1200px; /* גובה מקסימלי במחשבים גדולים */
-            margin: 20px auto; /* ריווח מהצדדים ומרכוז */
+            width: 90vw;
+            height: 90vh;
+            max-width: 1000px;
+            max-height: 1200px;
+            margin: 20px auto;
             border: 1px solid #ccc;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* הוסף צל עדין */
-            overflow: hidden; /* ודא שכל מה שבפנים לא יוצא מהגבולות */
-            display: flex; /* כדי למרכז את ה-iframe אם צריך */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: none; /* נסתר כברירת מחדל, יוצג לאחר הטעינה */
             justify-content: center;
             align-items: center;
         }
@@ -40,39 +91,78 @@
             width: 100%;
             height: 100%;
             border: none;
-            /* ודא שהתוכן לא חתוך, גם אם זה אומר שהוא יהיה קטן יותר */
-            object-fit: contain; /* שומר על יחס הגובה-רוחב ומכיל בתוך המסגרת */
+            object-fit: contain;
         }
 
-        /* Media Query למסכים קטנים מאוד (כמו רוב הטלפונים) */
+        /* Media Queries עבור ה-PDF */
         @media (max-width: 768px) {
             .pdf-container {
-                width: 98vw; /* תפוס כמעט את כל רוחב המסך בטלפונים */
-                height: 90vh; /* השאר גובה יחסי כדי לאפשר גלילה אם צריך */
+                width: 98vw;
+                height: 90vh;
                 margin: 10px auto;
             }
         }
 
-        /* Media Query למסכים ממש קטנים (למשל, מכשירים ישנים במיוחד) */
         @media (max-width: 480px) {
             .pdf-container {
-                width: 100vw; /* קח את כל רוחב המסך */
-                height: 85vh; /* קצת פחות גובה כדי להשאיר מקום לכרום של הטלפון */
-                margin: 0; /* אין שוליים */
-                border: none; /* הסר גבולות */
-                box-shadow: none; /* הסר צל */
+                width: 100vw;
+                height: 85vh;
+                margin: 0;
+                border: none;
+                box-shadow: none;
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="pdf-container">
-        <iframe src="document.pdf#toolbar=0&navpanes=0&page=1" type="application/pdf">
+    <div id="loading-screen">
+        <div class="loading-container">
+            <img src="https://i.postimg.cc/1zr32mFp/Planet-Logo-Israel-cinema-svg-1.png" alt="לוגו פלאנט" class="loading-logo">
+            <h1 class="loading-title">בר המצווה של עמית מטיאס</h1>
+            <p class="loading-text">טוען את ההזמנה...</p>
+        </div>
+    </div>
+
+    <div id="pdf-display-container" class="pdf-container">
+        <iframe id="pdf-iframe" src="document.pdf#toolbar=0&navpanes=0&page=1" type="application/pdf">
             <p>הדפדפן שלך אינו תומך בהצגת קבצי PDF.
             <a href="document.pdf" target="_blank">לחץ כאן כדי להוריד את קובץ ה-PDF.</a></p>
         </iframe>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const loadingScreen = document.getElementById('loading-screen');
+            const pdfDisplayContainer = document.getElementById('pdf-display-container');
+            const pdfIframe = document.getElementById('pdf-iframe');
+
+            // פונקציה להסתרת מסך הטעינה והצגת ה-PDF
+            function showPdfAndHideLoading() {
+                loadingScreen.classList.add('hidden'); // הוספת קלאס להסתרת מסך הטעינה עם אנימציה
+                loadingScreen.addEventListener('transitionend', function() {
+                    loadingScreen.style.display = 'none'; // הסתרת מסך הטעינה לחלוטין לאחר האנימציה
+                    pdfDisplayContainer.style.display = 'flex'; // הצגת קונטיינר ה-PDF
+                    document.body.style.overflow = 'auto'; // החזרת גלילה אם נדרש
+                }, { once: true }); // ודא שהאירוע רץ רק פעם אחת
+            }
+
+            // נסה לזהות מתי ה-iframe סיים לטעון
+            pdfIframe.onload = function() {
+                // נותן זמן קצר לוודא שהעיבוד הושלם
+                setTimeout(showPdfAndHideLoading, 500); // השהיה קלה של 0.5 שניות לאחר טעינת ה-PDF
+            };
+
+            // אם ה-iframe לא מצליח לטעון (לדוגמה, קובץ לא קיים או שגיאת דפדפן),
+            // נציג את ה-PDF בכל זאת לאחר זמן קצוב
+            // זהו גיבוי למקרה שהאירוע onload לא נורה תמיד
+            setTimeout(function() {
+                if (loadingScreen.style.display !== 'none') { // רק אם מסך הטעינה עדיין גלוי
+                    showPdfAndHideLoading();
+                }
+            }, 3000); // 3 שניות המתנה מקסימלית למסך הטעינה, גם אם ה-PDF לא נטען לגמרי
+        });
+    </script>
 
 </body>
 </html>
