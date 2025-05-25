@@ -13,40 +13,40 @@
         body {
             font-family: 'Heebo', sans-serif;
             display: flex;
-            flex-direction: column; /* מאפשר אלמנטים אחד מתחת לשני */
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background-color: #f0f0f0; /* רקע בהיר */
-            text-align: center; /* מרכז טקסט ותמונות */
-            overflow: hidden; /* למנוע גלילה במהלך הטעינה */
+            background-color: #f0f0f0;
+            text-align: center;
+            overflow: hidden; /* מונע גלילה במהלך הטעינה */
         }
 
-        /* סגנונות למסך הטעינה */
+        /* מסך הטעינה */
         #loading-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #f0f0f0; /* רקע של מסך הטעינה */
+            background-color: #f0f0f0;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 1000; /* ודא שמסך הטעינה מעל הכל */
-            opacity: 1; /* מתחיל גלוי */
-            transition: opacity 0.5s ease-out; /* אנימציה להעלמת המסך */
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
         }
 
         #loading-screen.hidden {
             opacity: 0;
-            pointer-events: none; /* מונע לחיצות על המסך לאחר היעלמות */
+            pointer-events: none;
         }
 
         .loading-container {
-            background-color: #fff; /* רקע לבן למלבן הטעינה */
+            background-color: #fff;
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -68,27 +68,27 @@
         }
 
         .loading-text {
-            color: #F58221; /* צבע כתום */
+            color: #F58221;
             font-size: 1.2em;
             font-weight: 700;
             margin-top: 0;
         }
 
-        /* סגנונות לקונטיינר הראשי לאחר הטעינה */
+        /* קונטיינר לתוכן שמוצג אחרי הטעינה - מוסתר כברירת מחדל */
         #content-container {
-            display: none; /* נסתר כברירת מחדל, יוצג לאחר הטעינה */
+            display: none;
             width: 100%;
-            height: 100vh; /* תופס את כל הגובה כדי למרכז */
+            height: 100vh;
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            padding: 20px 0; /* ריווח כללי */
+            padding: 20px 0;
             box-sizing: border-box;
-            overflow-y: auto; /* מאפשר גלילה אם התוכן ארוך */
+            overflow-y: auto;
         }
 
-        /* סגנונות ל-PDF במחשב ובאייפון */
-        .pdf-display {
+        /* תצוגת PDF למחשב */
+        .desktop-view {
             width: 90vw;
             height: 90vh;
             max-width: 1000px;
@@ -97,24 +97,24 @@
             border: 1px solid #ccc;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            display: flex; /* ל-iframe */
+            display: flex; /* יופעל ע"י JS */
             justify-content: center;
             align-items: center;
         }
 
-        .pdf-display iframe {
+        .desktop-view iframe {
             width: 100%;
             height: 100%;
             border: none;
             object-fit: contain;
         }
 
-        /* סגנונות לאנדרואיד */
-        .android-display {
-            display: flex;
+        /* תצוגה מיוחדת לאנדרואיד */
+        .android-view {
+            display: flex; /* יופעל ע"י JS */
             flex-direction: column;
             align-items: center;
-            max-width: 500px; /* רוחב מרבי לתמונת האנדרואיד והכפתורים */
+            max-width: 500px;
             width: 90%;
             padding: 20px;
             background-color: #fff;
@@ -133,12 +133,12 @@
         .android-buttons {
             display: flex;
             flex-direction: column;
-            gap: 15px; /* ריווח בין הכפתורים */
+            gap: 15px;
             width: 100%;
         }
 
         .action-button {
-            background-color: #F58221; /* כפתור כתום */
+            background-color: #F58221;
             color: white;
             padding: 12px 25px;
             border: none;
@@ -146,58 +146,34 @@
             font-size: 1.1em;
             cursor: pointer;
             text-decoration: none;
-            display: flex; /* כדי למרכז טקסט ותמונה */
+            display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px; /* ריווח בין טקסט לאייקון */
+            gap: 10px;
+            white-space: nowrap;
             transition: background-color 0.3s ease;
-            white-space: nowrap; /* מונע שבירת שורה בטקסט הכפתור */
         }
 
         .action-button:hover {
-            background-color: #e06e10; /* גוון כהה יותר במעבר עכבר */
+            background-color: #e06e10;
         }
 
         .action-button img {
-            height: 24px; /* גודל אייקון בתוך הכפתור */
+            height: 24px;
             width: 24px;
         }
 
-        /* Media Queries - התאמות כלליות לפלטפורמות */
+        /* מובייל כללי - מכסה גם אייפון וגם אנדרואיד ברוחב קטן */
         @media (max-width: 768px) {
-            /* סתר את תצוגת ה-PDF (iframe) והצג את תצוגת האנדרואיד */
-            .pdf-display {
-                display: none;
-            }
-            .android-display {
-                display: flex; /* הצג את התצוגה המותאמת לאנדרואיד */
+            .desktop-view {
+                display: none !important; /* וודא שה-iframe מוסתר במובייל */
             }
             #content-container {
-                 /* במובייל, אפשר ל-container לטפל בגלילה בתוך עצמו אם צריך */
-                justify-content: flex-start; /* הצמד למעלה במקום למרכז כדי לאפשר גלילה טבעית */
-                height: auto; /* גובה דינמי */
-                min-height: 100vh; /* ודא שהוא לפחות בגובה המסך */
-                padding: 20px 10px; /* ריווח בצדדים */
+                justify-content: flex-start;
+                height: auto;
+                min-height: 100vh;
+                padding: 20px 10px;
             }
-        }
-
-        @media (min-width: 769px) {
-            /* במחשב שולחני ובאייפון (כי הוא מטופל כמו דסקטופ לצורך זה) */
-            .pdf-display {
-                display: flex; /* הצג את ה-PDF ב-iframe */
-            }
-            .android-display {
-                display: none; /* הסתר את התצוגה המותאמת לאנדרואיד */
-            }
-        }
-
-        /* הסתרה ראשונית של כל התוכן עד לאחר הטעינה */
-        #content-container > * {
-            display: none;
-        }
-        #content-container.loaded .pdf-display,
-        #content-container.loaded .android-display {
-            display: flex; /* יופעל ע"י JS לאחר הטעינה והבדיקה */
         }
     </style>
 </head>
@@ -212,21 +188,21 @@
     </div>
 
     <div id="content-container">
-        <div id="desktop-iphone-view" class="pdf-display">
+        <div id="desktop-view" class="desktop-view">
             <iframe id="pdf-iframe" src="files/document.pdf#toolbar=0&navpanes=0&page=1" type="application/pdf">
                 <p>הדפדפן שלך אינו תומך בהצגת קבצי PDF.
                 <a href="files/document.pdf" target="_blank">לחץ כאן כדי להוריד את קובץ ה-PDF.</a></p>
             </iframe>
         </div>
 
-        <div id="android-view" class="android-display">
+        <div id="android-view" class="android-view">
             <img src="files/android.pdf.png" alt="הזמנה לבר מצווה" class="android-image">
             <div class="android-buttons">
                 <a href="https://amitmatyas-barmizzva.netlify.app/cofirm" target="_blank" class="action-button">
-                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvcnY9InJvdW5kIiBjbGFzcz0iaWNvbiBpY29uLXRhYmxlIj48cGF0aCBkPSJNMTYgMjdIMThhMiAyIDAgMCAwIDIgLTJWMThhMiAyIDAgMCAwLTIgLTJoLTJhMiAyIDAgMCAwLTIgMmMwIDIgNCAyIDQgMiIvPjxwYXRoIGQ9Ik0xMCAybDhIOFYyMCIvPjxwYXRoIGQ9Ik00IDIySDJhMiAyIDAgMCAxLTIgLTJWNGEyIDIgMCAwIDEgMiAtMmgxNGEyIDIgMCAwIDEgMiAyVjE0Ii8+PC9zdmc+" alt="אישור">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvcnY9InJvdW5kIiBjbGFzcz0iaWNvbiBpY29uLXRhYmxlIj48cGF0aCBkPSJNMTYgMjdIMThhMiAyIDAgMCAwIDIgLTJWMThhMiAyIDAgMCAwLTIgLTJoLTJhMiAyIDAgMCAwLTIgMmMwIDIgNCAyIDQgMiIvPjxwYXRoIGQ9Ik0xMCAybDhIOFYyMCIvPjxwYXRoIGQ9Ik00IDIySHJhMiAyIDAgMCAxLTItMlY0YTIgMiAwIDAgMSAyLTJoMThhMiAyIDAgMCAxIDIgMlYxNCIvPjwvc3ZnPg==" alt="אישור הגעה">
                     אישורי הגעה
                 </a>
-                <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&dates=20250710T150000Z%2F20250710T183000Z&location=%D7%99%D7%A1%20%D7%A4%D7%9C%D7%A0%D7%98%20%D7%97%D7%99%D7%A4%D7%94%2C%20%D7%A1%D7%99%D7%A0%D7%9E%D7%95%D7%9C%2C%20%D7%A9%D7%93%D7%A8%D7%95%D7%AA%20%D7%94%D7%94%D7%A1%D7%AA%D7%93%D7%A8%D7%95%D7%AA%2055%2C%20%D7%97%D7%99%D7%A4%D7%94%2C%20%D7%99%D7%A9%D7%A8%D7%90%D7%9C&text=%D7%91%D7%A8%20%D7%9E%D7%A6%D7%95%D7%95%D7%94%20%D7%9C%D7%A2%D7%9E%D7%99%D7%AA%20%D7%9E%D7%98%D7%99%D7%90%D7%A1" target="_blank" class="action-button">
+                <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&dates=20250710T150000Z%2F20250710T183000Z&location=%D7%99%D7%A1%20%D7%A4%D7%9C%D7%90%D7%A0%D7%98%20%D7%97%D7%99%D7%A4%D7%94%2C%20%D7%A1%D7%99%D7%A0%D7%9E%D7%95%D7%9C%2C%20%D7%A9%D7%93%D7%A8%D7%95%D7%AA%20%D7%94%D7%94%D7%A1%D7%AA%D7%93%D7%A8%D7%95%D7%AA%2055%2C%20%D7%97%D7%99%D7%A4%D7%94%2C%20%D7%99%D7%A9%D7%A8%D7%90%D7%9C&text=%D7%91%D7%A8%20%D7%9E%D7%A6%D7%95%D7%95%D7%94%20%D7%9C%D7%A2%D7%9E%D7%99%D7%AA%20%D7%9E%D7%98%D7%99%D7%90%D7%A1" target="_blank" class="action-button">
                     <img src="https://i.imgur.com/CB9uybL.png" alt="יומן">
                     שמור ביומן
                 </a>
@@ -242,49 +218,43 @@
         document.addEventListener("DOMContentLoaded", function() {
             const loadingScreen = document.getElementById('loading-screen');
             const contentContainer = document.getElementById('content-container');
-            const desktopIphoneView = document.getElementById('desktop-iphone-view');
+            const desktopView = document.getElementById('desktop-view');
             const androidView = document.getElementById('android-view');
             const pdfIframe = document.getElementById('pdf-iframe');
 
-            // בדיקה אם זה מכשיר אנדרואיד (פחות מ-769px ומתאים ל-Android User Agent)
-            const isAndroid = window.matchMedia("(max-width: 768px)").matches && /Android/i.test(navigator.userAgent);
-            // בדיקה אם זה אייפון/iOS (פחות מ-769px ומתאים ל-iPhone/iPad/iPod User Agent)
-            const isIOS = window.matchMedia("(max-width: 768px)").matches && /iPhone|iPad|iPod/i.test(navigator.userAgent);
-            // בדיקה אם זה מחשב שולחני
-            const isDesktop = !isAndroid && !isIOS; // אם זה לא אנדרואיד ולא iOS, אז זה דסקטופ
+            // זיהוי פלטפורמה מדויק
+            const userAgent = navigator.userAgent;
+            const isAndroid = /Android/i.test(userAgent) && window.matchMedia("(max-width: 768px)").matches;
+            const isIOS = /iPhone|iPad|iPod/i.test(userAgent) && window.matchMedia("(max-width: 768px)").matches;
+            const isDesktop = !isAndroid && !isIOS;
 
-            // טען את קובץ ה-PDF עבור הדסקטופ/אייפון ברקע (ה-iframe כבר מוגדר ב-HTML)
-            // אין צורך לטעון במובייל, כי במובייל הוא יוסתר ונציג תוכן אחר.
-            if (!isAndroid) {
-                // רק כדי לוודא שהוא טוען אם הוא לא נטען מיד מ-src ב-HTML
-                if (!pdfIframe.src) {
-                    pdfIframe.src = "files/document.pdf#toolbar=0&navpanes=0&page=1";
-                }
-            }
-
-            // המתן 3 שניות לפני הסתרת מסך הטעינה והצגת התוכן המתאים
+            // המתן 3 שניות, ואז הסתר את מסך הטעינה והצג את התוכן המתאים
             setTimeout(function() {
                 // הסתרת מסך הטעינה בפייד-אאוט
                 loadingScreen.classList.add('hidden');
                 loadingScreen.addEventListener('transitionend', function() {
                     loadingScreen.style.display = 'none'; // הסתרת מסך הטעינה לחלוטין
-                    document.body.style.overflow = 'auto'; // החזרת גלילה אם נדרש
+                    document.body.style.overflow = 'auto'; // החזרת גלילה במידת הצורך
 
                     // הצגת הקונטיינר הראשי של התוכן
                     contentContainer.style.display = 'flex';
-                    contentContainer.classList.add('loaded'); // קלאס לטיפול בתצוגה ב-CSS
 
                     if (isAndroid) {
-                        // הצג את התצוגה המותאמת לאנדרואיד
+                        // באנדרואיד: הצג את התמונה והכפתורים
                         androidView.style.display = 'flex';
-                        desktopIphoneView.style.display = 'none'; // וודא שה-PDF מוצג במובייל
-                    } else { // מחשב שולחני או אייפון
-                        // הצג את תצוגת ה-PDF
-                        desktopIphoneView.style.display = 'flex';
+                        desktopView.style.display = 'none';
+                    } else if (isIOS) {
+                        // באייפון: הפנה ישירות לקובץ ה-PDF
+                        // זה יגרום לדפדפן iOS לפתוח אותו בתצוגה המקדימה
+                        window.location.replace("files/document.pdf");
+                        // נמנע מלהציג את ה-content-container רגעית לפני ההפניה
+                        contentContainer.style.display = 'none';
+                    } else { // מחשב שולחני
+                        // במחשב שולחני: הצג את ה-PDF ב-iframe
+                        desktopView.style.display = 'flex';
                         androidView.style.display = 'none';
                     }
-
-                }, { once: true }); // event listener ירוץ רק פעם אחת
+                }, { once: true });
             }, 3000); // 3 שניות
         });
     </script>
