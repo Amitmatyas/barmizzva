@@ -5,12 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>הטמעת PDF עם קישורים ועמוד ספציפי</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            direction: rtl; /* כדי לתמוך בעברית */
-            text-align: right; /* כדי לתמוך בעברית */
-            margin: 20px;
-        }
         .pdf-container {
             width: 80%; /* התאם את הרוחב לפי הצורך */
             height: 600px; /* התאם את הגובה לפי הצורך */
@@ -29,7 +23,7 @@
     <h1>ה-PDF המוטמע שלך</h1>
 
     <div class="pdf-container">
-        <iframe src="./your_document.pdf#toolbar=0&navpanes=0&page=1" type="application/pdf">
+        <iframe src="document.pdf#toolbar=0&navpanes=0&page=1" type="application/pdf">
             <p>הדפדפן שלך אינו תומך בהצגת קבצי PDF.
             <a href="document.pdf" target="_blank">לחץ כאן כדי להוריד את קובץ ה-PDF.</a></p>
         </iframe>
