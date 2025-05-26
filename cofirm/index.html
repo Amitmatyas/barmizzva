@@ -157,8 +157,7 @@
             })
             .then(function(response) {
                 console.log('SUCCESS!', response.status, response.text);
-                showMessage('תודה, סטטוס ההגעה שלך נקלט בהצלחה!', 'success');
-                showMessage('נשלחה הודעת מייל,בדוק את תיבת הספאם,עדכונים נוספים ישלחו באימייל', 'success');
+                showMessage('תודה, סטטוס ההגעה שלך נקלט בהצלחה!. נשלחה הודעת מייל,בדוק את תיבת הספאם,עדכונים נוספים ישלחו באימייל', 'success');
             }, function(error) {
                 console.log('FAILED...', error);
                 showMessage('אירעה שגיאה, נא פנה לעמית מטיאס.', 'success');
