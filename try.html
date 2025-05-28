@@ -79,8 +79,8 @@
             display: none;
             width: 100%;
             min-height: 100vh;
-            justify-content: center; /* **שינוי: מרכז אנכית בדפדפנים שונים** */
-            align-items: center; /* **שינוי: מרכז אופקית** */
+            justify-content: center;
+            align-items: center;
             flex-direction: column;
             padding: 20px 0;
             box-sizing: border-box;
@@ -95,7 +95,7 @@
             width: 90vw;
             height: 90vh;
             max-width: 1200px; /* הגדל רוחב מקסימלי כדי להכיל שני PDFS */
-            margin: auto; /* **שינוי: מרכוז עצמי אופקית ואנכית בתוך הפלקס קונטיינר** */
+            margin: 20px auto;
             border: none; /* אין מסגרת לקונטיינר הראשי */
             box-shadow: none; /* אין צל לקונטיינר הראשי */
             justify-content: center;
@@ -103,7 +103,7 @@
             padding: 0; /* ללא פדינג לקונטיינר הראשי */
         }
 
-        .desktop-content-wrapper {
+        .desktop-pdf-wrapper {
             flex: 1; /* יתפוס מקום שווה ברוחב */
             border: 1px solid #ccc;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -115,8 +115,7 @@
             align-items: center;
         }
 
-        .desktop-view iframe,
-        .desktop-view img { /* הוספת img לכאן */
+        .desktop-view iframe {
             width: 100%;
             height: 100%;
             border: none;
@@ -198,7 +197,7 @@
                 display: none !important; /* וודא שה-iframe מוסתר במובייל */
             }
             #content-container {
-                justify-content: flex-start; /* במובייל, להתחיל מהחלק העליון */
+                justify-content: flex-start;
                 height: auto;
                 min-height: 100vh;
                 padding: 20px 10px;
@@ -218,30 +217,33 @@
 
     <div id="content-container">
         <div id="desktop-view" class="desktop-view">
-            <div class="desktop-content-wrapper">
+            <div class="desktop-pdf-wrapper">
                 <iframe id="pdf-iframe-main" src="files/document.pdf#toolbar=0&navpanes=0&page=1" type="application/pdf">
                     <p>הדפדפן שלך אינו תומך בהצגת קבצי PDF.
                     <a href="files/document.pdf" target="_blank">לחץ כאן כדי להוריד את קובץ ה-PDF הראשי.</a></p>
                 </iframe>
             </div>
-            <div class="desktop-content-wrapper">
-                <img id="desktop-additional-image" src="https://i.imgur.com/roP0N9t.png" alt="הזמנה ריבועית נוספת">
+            <div class="desktop-pdf-wrapper">
+                <iframe id="pdf-iframe-additional" src="files/tora.pdf#toolbar=0&navpanes=0&page=1" type="application/pdf">
+                    <p>הדפדפן שלך אינו תומך בהצגת קובץ זה.
+                    <a href="files/tora.pdf" target="_blank">לחץ כאן כדי להוריד את קובץ התורה.</a></p>
+                </iframe>
             </div>
         </div>
 
         <div id="android-view" class="android-view">
-            <img src="https://i.imgur.com/c2qRovP.png" alt="הזמנה לבר מצווה" class="android-image">
+            <img src="https://imgur.com/c2qRovP.png" alt="הזמנה לבר מצווה" class="android-image">
             <div class="android-buttons">
                 <a href="https://amitmatyas-barmizzva.netlify.app/cofirm" target="_blank" class="action-button">
-                    <img src="https://i.imgur.com/5yj7XXm.png" alt="אישור הגעה" class="arrival-icon"> אישורי הגעה
+                    <img src="https://imgur.com/5yj7XXm.png" alt="אישור הגעה" class="arrival-icon"> אישורי הגעה
                 </a>
-                <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&dates=20250710T150000Z%2F20250710T183000Z&location=%D7%99%D7%A1%20%D7%A4%D7%9C%D7%90%D7%A0%D7%98%20%D7%97%D7%99%D7%A4%D7%94%2C%20%D7%A1%D7%99%D7%A0%D7%9E%D7%95%D7%9C%2C%20%D7%A9%D7%93%D7%A8%D7%95%D7%AA%20%D7%94%D7%94%D7%A1%D7%AA%D7%93%D7%A8%D7%95%D7%AA%2055%2C%20%D7%97%D7%99%D7%A4%D7%94%2C%20%D7%99%D7%A9%D7%A8%D7%90%D7%9C&text=%D7%91%D7%A8%20%D7%9E%D7%A6%D7%95%D7%95%D7%94%20%D7%9C%D7%A2%D7%9E%D7%99%D7%AA%20%D7%9E%D7%98%D7%99%D7%90%D7%A1" target="_blank" class="action-button">
+                <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&dates=20250710T150000Z%2F20250710T183000Z&location=%D7%99%D7%A1%20%D7%A4%D7%9C%D7%90%D7%A0%D7%98%20%D7%97%D7%99%D7%[...]
                     <img src="https://i.imgur.com/CB9uybL.png" alt="יומן">
                     שמור ביומן
                 </a>
             </div>
             <img src="https://i.postimg.cc/T3867zyH/image.png" alt="תמונה נוספת" class="android-additional-image">
-            <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&dates=20250707T140000Z%2F20250707T153000Z&location=%D7%91%D7%99%D7%AA%20%D7%9B%D7%A0%D7%A1%D7%AA%20%D7%9E%D7%90%D7%99%D7%A8%2C%20%D7%94%D7%A6%D7%9C%D7%A4%D7%99%D7%9D%205%2C%20%D7%97%D7%99%D7%A4%D7%94%2C%20%D7%99%D7%A9%D7%A8%D7%90%D7%9C&text=%D7%94%D7%A2%D7%9C%D7%99%D7%99%D7%94%20%D7%9C%D7%AA%D7%95%D7%A8%D7%94%20%D7%A9%D7%9C%20%D7%A2%D7%9E%D7%99%D7%AA%20%D7%9E%D7%98%D7%99%D7%90%D7%A1" target="_blank" class="action-button">
+            <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&dates=20250707T140000Z%2F20250707T153000Z&location=%D7%91%D7%99%D7%AA%20%D7%9B%D7%A0%D7%A1%D7%AA%20%D7%9E%D7%90%D7%99%D[...]
                 <img src="https://i.imgur.com/CB9uybL.png" alt="יומן">
                 שמור ביומן
             </a>
@@ -254,38 +256,45 @@
             const contentContainer = document.getElementById('content-container');
             const desktopView = document.getElementById('desktop-view');
             const androidView = document.getElementById('android-view');
-            const pdfIframeMain = document.getElementById('pdf-iframe-main');
+            const pdfIframeMain = document.getElementById('pdf-iframe-main'); // Changed ID
+            const pdfIframeAdditional = document.getElementById('pdf-iframe-additional'); // New ID for the second iframe
 
+            // זיהוי פלטפורמה מדויק
             const userAgent = navigator.userAgent;
             const isAndroid = /Android/i.test(userAgent) && window.matchMedia("(max-width: 768px)").matches;
             const isIOS = /iPhone|iPad|iPod/i.test(userAgent) && window.matchMedia("(max-width: 768px)").matches;
             const isDesktop = !isAndroid && !isIOS;
 
+            // המתן 3 שניות, ואז הסתר את מסך הטעינה והצג את התוכן המתאים
             setTimeout(function() {
+                // הסתרת מסך הטעינה בפייד-אאוט
                 loadingScreen.classList.add('hidden');
                 loadingScreen.addEventListener('transitionend', function() {
-                    loadingScreen.style.display = 'none';
-                    document.body.style.overflow = 'auto';
+                    loadingScreen.style.display = 'none'; // הסתרת מסך הטעינה לחלוטין
+                    document.body.style.overflow = 'auto'; // החזרת גלילה במידת הצורך
 
+                    // הצגת הקונטיינר הראשי של התוכן
                     contentContainer.style.display = 'flex';
 
                     if (isAndroid) {
+                        // באנדרואיד: הצג את התמונה והכפתורים, בתוספת התמונה הריבועית והכפתור הנוסף
                         androidView.style.display = 'flex';
                         desktopView.style.display = 'none';
                     } else if (isIOS) {
+                        // באייפון: הפנה ישירות לקובץ ה-PDF ייעודי
                         window.location.replace("files/iphone.pdf");
+                        // נמנע מלהציג את ה-content-container רגעית לפני ההפניה
                         contentContainer.style.display = 'none';
                     } else { // מחשב שולחני
+                        // במחשב שולחני: הצג את שני ה-PDFs ב-iframes
                         desktopView.style.display = 'flex';
                         androidView.style.display = 'none';
+                        // ודא ששני ה-iframes נטענים כראוי
                         pdfIframeMain.src = "files/document.pdf#toolbar=0&navpanes=0&page=1";
-                        const desktopAdditionalImage = document.getElementById('desktop-additional-image');
-                        if (desktopAdditionalImage) {
-                            desktopAdditionalImage.src = "https://i.imgur.com/roP0N9t.png";
-                        }
+                        pdfIframeAdditional.src = "files/tora.pdf#toolbar=0&navpanes=0&page=1";
                     }
                 }, { once: true });
-            }, 3000);
+            }, 3000); // 3 שניות
         });
     </script>
 
