@@ -23,6 +23,7 @@
             overflow: hidden; /* מונע גלילה במהלך הטעינה */
         }
 
+        /* מסך הטעינה */
         #loading-screen {
             position: fixed;
             top: 0;
@@ -73,6 +74,7 @@
             margin-top: 0;
         }
 
+        /* קונטיינר לתוכן שמוצג אחרי הטעינה - מוסתר כברירת מחדל */
         #content-container {
             display: none;
             width: 100%;
@@ -85,28 +87,29 @@
             overflow-y: auto;
         }
 
+        /* תצוגת PDF למחשב */
         .desktop-view {
-            display: flex;
-            flex-direction: row;
-            gap: 20px;
+            display: flex; /* יופעל ע"י JS */
+            flex-direction: row; /* להצבת שני ה-PDFs זה לצד זה */
+            gap: 20px; /* רווח בין שני ה-PDFs */
             width: 90vw;
             height: 90vh;
-            max-width: 1200px;
+            max-width: 1200px; /* הגדל רוחב מקסימלי כדי להכיל שני PDFS */
             margin: 20px auto;
-            border: none;
-            box-shadow: none;
+            border: none; /* אין מסגרת לקונטיינר הראשי */
+            box-shadow: none; /* אין צל לקונטיינר הראשי */
             justify-content: center;
             align-items: center;
-            padding: 0;
+            padding: 0; /* ללא פדינג לקונטיינר הראשי */
         }
 
         .desktop-pdf-wrapper {
-            flex: 1;
+            flex: 1; /* יתפוס מקום שווה ברוחב */
             border: 1px solid #ccc;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
             overflow: hidden;
-            height: 100%;
+            height: 100%; /* גובה מלא של הקונטיינר הראשי */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -119,12 +122,12 @@
             object-fit: contain;
         }
 
-        /* תצוגה ישנה לאנדרואיד - תמונה אחת וכפתורים */
+        /* תצוגה מיוחדת לאנדרואיד */
         .android-view {
-            display: flex;
+            display: flex; /* יופעל ע"י JS */
             flex-direction: column;
             align-items: center;
-            max-width: 400px;
+            max-width: 500px;
             width: 90%;
             padding: 20px;
             background-color: #fff;
@@ -135,7 +138,7 @@
         .android-image {
             max-width: 100%;
             height: auto;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
@@ -143,17 +146,18 @@
         .android-buttons {
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 15px;
             width: 100%;
+            margin-bottom: 20px; /* רווח בין הכפתורים הראשיים לתמונה הנוספת */
         }
 
         .action-button {
             background-color: #F58221;
             color: white;
-            padding: 14px 0;
+            padding: 12px 25px;
             border: none;
             border-radius: 8px;
-            font-size: 1.15em;
+            font-size: 1.1em;
             cursor: pointer;
             text-decoration: none;
             display: flex;
@@ -169,18 +173,28 @@
         }
 
         .action-button img {
-            height: 24px;
+            height: 24px; /* גודל ברירת מחדל לאייקונים בכפתורים */
             width: 24px;
         }
 
+        /* הגדלת תמונת אישור הגעה ספציפית */
         .action-button .arrival-icon {
-            height: 40px;
+            height: 40px; /* גודל מוגדל לאייקון אישור הגעה */
             width: 40px;
         }
 
+        .android-additional-image {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 15px; /* רווח בין התמונה הנוספת לכפתור שלה */
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* מובייל כללי - מכסה גם אייפון וגם אנדרואיד ברוחב קטן */
         @media (max-width: 768px) {
             .desktop-view {
-                display: none !important;
+                display: none !important; /* וודא שה-iframe מוסתר במובייל */
             }
             #content-container {
                 justify-content: flex-start;
@@ -223,11 +237,16 @@
                 <a href="https://amitmatyas-barmizzva.netlify.app/cofirm" target="_blank" class="action-button">
                     <img src="https://imgur.com/5yj7XXm.png" alt="אישור הגעה" class="arrival-icon"> אישורי הגעה
                 </a>
-                <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&dates=20250710T150000Z%2F20250710T183000Z&location=%D7%99%D7%A1%20%D7%A4%D7%9C%D7%90%D7%A0%D7%98%20%D7%97%D7%99%D7%A4%D7%94%20%D7%A7%D7%A0%D7%99%D7%95%D7%9F%20%D7%97%D7%99%D7%A4%D7%94%20%D7%A9%D7%93%D7%A8%D7%95%D7%AA%20%D7%A4%D7%99%D7%99%D7%A8%D7%91%D7%A8%D7%92%2023&details=%D7%91%D7%A8%20%D7%9E%D7%A6%D7%95%D7%95%D7%94%20%D7%A9%D7%9C%20%D7%A2%D7%9E%D7%99%D7%AA%20%D7%9E%D7%98%D7%99%D7%90%D7%A1&text=%D7%91%D7%A8%20%D7%9E%D7%A6%D7%95%D7%95%D7%94%20%D7%A9%D7%9C%20%D7%A2%D7%9E%D7%99%D7%AA%20%D7%9E%D7%98%D7%99%D7%90%D7%A1" target="_blank" class="action-button">
+                <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&dates=20250710T150000Z%2F20250710T183000Z&location=%D7%99%D7%A1%20%D7%A4%D7%9C%D7%90%D7%A0%D7%98%20%D7%97%D7%99%D7%A4%D7%94%2C%20%D7%A1%D7%99%D7%A0%D7%9E%D7%95%D7%9C%2C%20%D7%A9%D7%93%D7%A8%D7%95%D7%AA%20%D7%94%D7%94%D7%A1%D7%AA%D7%93%D7%A8%D7%95%D7%AA%2055%2C%20%D7%97%D7%99%D7%A4%D7%94%2C%20%D7%99%D7%A9%D7%A8%D7%90%D7%9C&text=%D7%91%D7%A8%20%D7%9E%D7%A6%D7%95%D7%95%D7%94%20%D7%9C%D7%A2%D7%9E%D7%99%D7%AA%20%D7%9E%D7%98%D7%99%D7%90%D7%A1" target="_blank" class="action-button">
                     <img src="https://i.imgur.com/CB9uybL.png" alt="יומן">
                     שמור ביומן
                 </a>
             </div>
+            <img src="https://i.postimg.cc/T3867zyH/image.png" alt="תמונה נוספת" class="android-additional-image">
+            <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&dates=20250707T140000Z%2F20250707T153000Z&location=%D7%91%D7%99%D7%AA%20%D7%9B%D7%A0%D7%A1%D7%AA%20%D7%9E%D7%90%D7%99%D7%A8%2C%20%D7%94%D7%A6%D7%9C%D7%A4%D7%99%D7%9D%205%2C%20%D7%97%D7%99%D7%A4%D7%94%2C%20%D7%99%D7%A9%D7%A8%D7%90%D7%9C&text=%D7%94%D7%A2%D7%9C%D7%99%D7%99%D7%94%20%D7%9C%D7%AA%D7%95%D7%A8%D7%94%20%D7%A9%D7%9C%20%D7%A2%D7%9E%D7%99%D7%AA%20%D7%9E%D7%98%D7%99%D7%90%D7%A1" target="_blank" class="action-button">
+                <img src="https://i.imgur.com/CB9uybL.png" alt="יומן">
+                שמור ביומן
+            </a>
         </div>
     </div>
 
@@ -237,36 +256,47 @@
             const contentContainer = document.getElementById('content-container');
             const desktopView = document.getElementById('desktop-view');
             const androidView = document.getElementById('android-view');
-            const pdfIframeMain = document.getElementById('pdf-iframe-main');
-            const pdfIframeAdditional = document.getElementById('pdf-iframe-additional');
+            const pdfIframeMain = document.getElementById('pdf-iframe-main'); // Changed ID
+            const pdfIframeAdditional = document.getElementById('pdf-iframe-additional'); // New ID for the second iframe
 
+            // זיהוי פלטפורמה מדויק
             const userAgent = navigator.userAgent;
             const isAndroid = /Android/i.test(userAgent) && window.matchMedia("(max-width: 768px)").matches;
             const isIOS = /iPhone|iPad|iPod/i.test(userAgent) && window.matchMedia("(max-width: 768px)").matches;
             const isDesktop = !isAndroid && !isIOS;
 
+            // המתן 3 שניות, ואז הסתר את מסך הטעינה והצג את התוכן המתאים
             setTimeout(function() {
+                // הסתרת מסך הטעינה בפייד-אאוט
                 loadingScreen.classList.add('hidden');
                 loadingScreen.addEventListener('transitionend', function() {
-                    loadingScreen.style.display = 'none';
-                    document.body.style.overflow = 'auto';
+                    loadingScreen.style.display = 'none'; // הסתרת מסך הטעינה לחלוטין
+                    document.body.style.overflow = 'auto'; // החזרת גלילה במידת הצורך
+
+                    // הצגת הקונטיינר הראשי של התוכן
                     contentContainer.style.display = 'flex';
 
                     if (isAndroid) {
+                        // באנדרואיד: הצג את התמונה והכפתורים, בתוספת התמונה הריבועית והכפתור הנוסף
                         androidView.style.display = 'flex';
                         desktopView.style.display = 'none';
                     } else if (isIOS) {
+                        // באייפון: הפנה ישירות לקובץ ה-PDF ייעודי
                         window.location.replace("files/iphone.pdf");
+                        // נמנע מלהציג את ה-content-container רגעית לפני ההפניה
                         contentContainer.style.display = 'none';
-                    } else {
+                    } else { // מחשב שולחני
+                        // במחשב שולחני: הצג את שני ה-PDFs ב-iframes
                         desktopView.style.display = 'flex';
                         androidView.style.display = 'none';
+                        // ודא ששני ה-iframes נטענים כראוי
                         pdfIframeMain.src = "files/document.pdf#toolbar=0&navpanes=0&page=1";
                         pdfIframeAdditional.src = "files/tora.pdf#toolbar=0&navpanes=0&page=1";
                     }
                 }, { once: true });
-            }, 3000);
+            }, 3000); // 3 שניות
         });
     </script>
+
 </body>
 </html>
