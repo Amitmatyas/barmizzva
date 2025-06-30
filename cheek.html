@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>אישור הגעה לבר מצווה</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✉️</text></svg>">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Heebo', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            text-align: center;
+            overflow: hidden; /* מונע גלילה במהלך הטעינה */
+        }
+
+        /* מסך הטעינה */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 90%;
+            box-sizing: border-box;
+        }
+
+        .loading-logo {
+            max-width: 120px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .loading-title {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        .loading-text {
+            color: #F58221;
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-top: 0;
+        }
+
+        /* קונטיינר כללי - עוטף את מסך החיפוש או את הטופס */
+        #main-content-wrapper {
+            display: none; /* מוסתר עד שהטעינה מסתיימת */
+            width: 100%;
+            min-height: 100vh;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto; /* מאפשר גלילה אם התוכן ארוך */
+        }
+
+        /* מסך חיפוש */
+        #search-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            background-color: #f0f0f0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .search-box {
+            background-color: #fff;
+            padding: 40px 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .search-logo {
+            max-width: 100px;
+            height: auto;
+        }
+
+        .search-box h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.6em;
+        }
+
+        #fullNameSearch {
+            width: calc(100% - 20px);
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1.1em;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        #searchButton {
+            background-color: #F58221;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #searchButton:hover {
+            background-color: #e06e10;
+        }
+
+        /* טופס אישור הגעה */
+        #form-container {
+            background-color: #fff;
+            padding: 40px 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
+            box-sizing: border-box;
+            display: none; /* מוסתר כברירת מחדל */
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .form-logo {
+            max-width: 100px;
+            height: auto;
+        }
+
+        #rsvpForm {
+            width: 100%;
+            text-align: right; /* יישור לימין ללייבלים */
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"] {
+            width: calc(100% - 24px); /* פחות פדינג */
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
+        .form-group input[type="text"][readonly] {
+            background-color: #f9f9f9;
+            cursor: not-allowed;
+        }
+
+        .status-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap; /* יאפשר גלישה לשורה הבאה במובייל */
+            justify-content: center;
+        }
+
+        .status-button {
+            flex-grow: 1; /* יתפוס מקום באופן שווה */
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            min-width: 120px; /* רוחב מינימלי לכפתורים */
+        }
+
+        .status-button.active {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.4); /* צל מוגבר לכפתור פעיל */
+            animation: glow 1.5s infinite alternate; /* אנימציית הבהוב */
+        }
+
+        /* אנימציית הבהוב */
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px rgba(255, 255, 255, 0.6), 0 0 20px rgba(255, 255, 255, 0.4);
+            }
+            to {
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 255, 255, 0.6);
+            }
+        }
+
+        /* התאמה צבע הבהוב לצבע הכפתור */
+        .status-button[data-status="pending"].active {
+            animation: glow-orange 1.5s infinite alternate;
+        }
+        @keyframes glow-orange {
+            from { box-shadow: 0 0 10px rgba(245, 130, 33, 0.6), 0 0 20px rgba(245, 130, 33, 0.4); }
+            to { box-shadow: 0 0 20px rgba(245, 130, 33, 0.8), 0 0 30px rgba(245, 130, 33, 0.6); }
+        }
+
+        .status-button[data-status="מגיע/ה"].active {
+            animation: glow-green 1.5s infinite alternate;
+        }
+        @keyframes glow-green {
+            from { box-shadow: 0 0 10px rgba(40, 167, 69, 0.6), 0 0 20px rgba(40, 167, 69, 0.4); }
+            to { box-shadow: 0 0 20px rgba(40, 167, 69, 0.8), 0 0 30px rgba(40, 167, 69, 0.6); }
+        }
+
+        .status-button[data-status="לא מגיע/ה"].active {
+            animation: glow-red 1.5s infinite alternate;
+        }
+        @keyframes glow-red {
+            from { box-shadow: 0 0 10px rgba(220, 53, 69, 0.6), 0 0 20px rgba(220, 53, 69, 0.4); }
+            to { box-shadow: 0 0 20px rgba(220, 53, 69, 0.8), 0 0 30px rgba(220, 53, 69, 0.6); }
+        }
+
+        .submit-button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 20px;
+        }
+
+        .submit-button:hover {
+            background-color: #0056b3;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-size: 1em;
+            font-weight: bold;
+            width: 100%; /* כדי לוודא שההודעה תופסת את מלוא הרוחב בתוך הקונטיינר */
+        }
+
+        .message.success {
+            color: #28a745;
+        }
+
+        .message.error {
+            color: #dc3545;
+        }
+
+        /* רספונסיביות */
+        @media (max-width: 600px) {
+            .search-box, .loading-container, #form-container {
+                padding: 25px 15px;
+            }
+
+            .search-box h2, .loading-title, #form-container h2 {
+                font-size: 1.4em;
+            }
+
+            #fullNameSearch, #searchButton, .form-group input, .submit-button {
+                font-size: 1em;
+                padding: 10px;
+            }
+
+            .status-buttons {
+                flex-direction: column; /* כפתורים אחד מתחת לשני במובייל */
+            }
+
+            .status-button {
+                width: 100%; /* כפתור תופס 100% רוחב */
+                margin-bottom: 10px; /* מרווח בין כפתורים */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div class="loading-container">
+            <img src="https://i.postimg.cc/1zr32mFp/Planet-Logo-Israel-cinema-svg-1.png" alt="לוגו פלאנט" class="loading-logo">
+            <h1 class="loading-title">בר המצווה של עמית מטיאס</h1>
+            <p class="loading-text">טוען את אישורי הגעה...</p>
+        </div>
+    </div>
+
+    <div id="main-content-wrapper">
+        <div id="search-container">
+            <div class="search-box">
+                <img src="https://i.postimg.cc/1zr32mFp/Planet-Logo-Israel-cinema-svg-1.png" alt="לוגו פלאנט" class="search-logo">
+                <h2>מצא את ההזמנה שלך</h2>
+                <input type="text" id="fullNameSearch" placeholder="הכנס שם מלא (לדוגמה: משה כהן)">
+                <button id="searchButton">חפש</button>
+                <p id="searchMessage" class="message"></p>
+            </div>
+        </div>
+
+        <div id="form-container">
+            <img src="https://i.postimg.cc/1zr32mFp/Planet-Logo-Israel-cinema-svg-1.png" alt="לוגו פלאנט" class="form-logo">
+            <h2>אישור הגעה לבר המצווה של עמית מטיאס</h2>
+            <form id="rsvpForm">
+                <div class="form-group">
+                    <label for="fullName">שם מלא:</label>
+                    <input type="text" id="fullName" name="fullName" readonly>
+                    <input type="hidden" id="guestDocId"> 
+                </div>
+                <div class="form-group">
+                    <label for="email">אימייל:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label>סטטוס הגעה:</label>
+                    <div class="status-buttons">
+                        <button type="button" class="status-button" data-status="pending" style="background-color: #F58221;">ממתין</button>
+                        <button type="button" class="status-button" data-status="מגיע/ה" style="background-color: #28a745;">מאשר/ת הגעה</button>
+                        <button type="button" class="status-button" data-status="לא מגיע/ה" style="background-color: #dc3545;">לא מגיע/ה</button>
+                    </div>
+                    <input type="hidden" id="arrivalStatus" name="arrivalStatus">
+                </div>
+                <button type="submit" class="submit-button">שמור שינויים</button>
+                <p id="formMessage" class="message"></p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // *** 1. הגדרות Firebase - החלף את המצייני מיקום בפרטים שלך ***
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // אתחול Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(); // קבלת מופע של Firestore
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const loadingScreen = document.getElementById('loading-screen');
+            const mainContentWrapper = document.getElementById('main-content-wrapper');
+            const searchContainer = document.getElementById('search-container');
+            const formContainer = document.getElementById('form-container');
+            const fullNameSearchInput = document.getElementById('fullNameSearch');
+            const searchButton = document.getElementById('searchButton');
+            const searchMessage = document.getElementById('searchMessage');
+            const rsvpForm = document.getElementById('rsvpForm');
+            const fullNameField = document.getElementById('fullName');
+            const emailField = document.getElementById('email');
+            const arrivalStatusField = document.getElementById('arrivalStatus');
+            const statusButtons = document.querySelectorAll('.status-button');
+            const formMessage = document.getElementById('formMessage');
+            const guestDocIdField = document.getElementById('guestDocId'); // שדה נסתר לשמירת ה-ID של המסמך (האימייל)
+
+            // Simulate loading time (you can adjust or remove this)
+            setTimeout(function() {
+                loadingScreen.classList.add('hidden');
+                loadingScreen.addEventListener('transitionend', function() {
+                    loadingScreen.style.display = 'none';
+                    document.body.style.overflow = 'auto'; // Re-enable scrolling
+                    mainContentWrapper.style.display = 'flex'; // Show main content
+                }, { once: true });
+            }, 2000); // 2 seconds loading
+
+            let currentGuestDocId = null; // ישמור את ה-ID של המסמך הנוכחי (האימייל)
+
+            // --- Search Logic ---
+            searchButton.addEventListener('click', async function() {
+                const searchTerm = fullNameSearchInput.value.trim();
+                if (searchTerm === "") {
+                    searchMessage.textContent = "אנא הזן שם מלא לחיפוש.";
+                    searchMessage.className = "message error";
+                    return;
+                }
+
+                searchMessage.textContent = "מחפש...";
+                searchMessage.className = "message";
+
+                try {
+                    // חיפוש בקולקציה 'bar_mizzva_attendees' לפי השדה 'full_name'
+                    const attendeesCollectionRef = db.collection('bar_mizzva_attendees'); 
+                    const snapshot = await attendeesCollectionRef.where('full_name', '==', searchTerm).limit(1).get();
+
+                    if (!snapshot.empty) {
+                        const guestDoc = snapshot.docs[0];
+                        const foundGuest = guestDoc.data();
+                        
+                        // שמור את ה-ID של המסמך (שהוא האימייל של האורח)
+                        currentGuestDocId = guestDoc.id; 
+                        guestDocIdField.value = currentGuestDocId;
+
+                        searchMessage.textContent = ""; // Clear previous message
+                        searchContainer.style.display = 'none'; // Hide search
+                        formContainer.style.display = 'flex'; // Show form
+
+                        // Populate form fields
+                        fullNameField.value = foundGuest.full_name;
+                        emailField.value = foundGuest.email || ''; 
+                        
+                        // Set initial arrival status and apply glow
+                        // התאמה לערכי הסטטוס שצוינו ב-Firebase: "מגיע/ה" או "לא מגיע/ה"
+                        // וערך "pending" אם לא הוגדר עדיין
+                        const initialStatus = foundGuest.attendance || 'pending';
+                        setArrivalStatus(initialStatus);
+                    } else {
+                        searchMessage.textContent = `השם "${searchTerm}" לא נמצא במערכת. נסה שוב.`;
+                        searchMessage.className = "message error";
+                        formContainer.style.display = 'none'; // וודא שהטופס מוסתר
+                    }
+                } catch (error) {
+                    console.error("Error searching guest: ", error);
+                    searchMessage.textContent = "שגיאה בחיפוש. אנא נסה שוב מאוחר יותר.";
+                    searchMessage.className = "message error";
+                }
+            });
+
+            // --- Form Logic ---
+            statusButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const status = this.dataset.status;
+                    setArrivalStatus(status);
+                });
+            });
+
+            function setArrivalStatus(status) {
+                statusButtons.forEach(btn => btn.classList.remove('active'));
+                const selectedButton = document.querySelector(`.status-button[data-status="${status}"]`);
+                if (selectedButton) {
+                    selectedButton.classList.add('active');
+                    arrivalStatusField.value = status;
+                }
+            }
+
+            rsvpForm.addEventListener('submit', async function(event) {
+                event.preventDefault(); // Prevent default form submission
+
+                const guestIdToUpdate = guestDocIdField.value;
+                if (!guestIdToUpdate) {
+                    formMessage.textContent = "שגיאה: לא נבחר אורח לעדכון.";
+                    formMessage.className = "message error";
+                    return;
+                }
+
+                formMessage.textContent = "שומר שינויים...";
+                formMessage.className = "message";
+
+                // התאמה לשמות השדות ב-Firestore: 'attendance', 'email', 'full_name'
+                const updatedData = {
+                    email: emailField.value.trim(), 
+                    attendance: arrivalStatusField.value, // כאן נשלח את סטטוס ההגעה
+                    full_name: fullNameField.value.trim() 
+                };
+
+                try {
+                    // עדכון נתונים בקולקציה 'bar_mizzva_attendees' ובמסמך שה-ID שלו הוא האימייל של האורח.
+                    await db.collection('bar_mizzva_attendees').doc(guestIdToUpdate).update(updatedData);
+                    formMessage.textContent = "הפרטים נשמרו בהצלחה!";
+                    formMessage.className = "message success";
+                } catch (error) {
+                    console.error("Error updating guest data: ", error);
+                    formMessage.textContent = "שגיאה בשמירת הפרטים. אנא נסה שוב מאוחר יותר.";
+                    formMessage.className = "message error";
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
