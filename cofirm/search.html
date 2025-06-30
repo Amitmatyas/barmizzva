@@ -178,39 +178,68 @@
             box-sizing: border-box;
             font-size: 1rem;
         }
-        input[type="text"][readonly] {
-            background-color: #f0f0f0; /* רקע אפור לשדות קריאה בלבד */
+        /* שינוי: הסרנו את readonly מה-CSS, אבל נגדיר אותו ב-JS לפי הצורך */
+        /* input[type="text"][readonly] {
+            background-color: #f0f0f0; 
             cursor: not-allowed;
-        }
-        .button-group {
+        } */
+
+        .status-buttons {
             display: flex;
             gap: 15px;
             justify-content: center;
             margin-top: 25px;
         }
-        button {
+        .status-button {
             padding: 12px 25px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-size: 1.1rem;
             color: white;
-            transition: background-color 0.3s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease; /* אנימציית מעבר */
             flex-grow: 1;
             max-width: 150px;
         }
-        button[type="submit"].coming {
-            background-color: #4CAF50;
+
+        /* צבעים לכפתורי סטטוס */
+        .status-button[data-status="מגיע/ה"] { background-color: #4CAF50; }
+        .status-button[data-status="לא מגיע/ה"] { background-color: #f44336; }
+        .status-button[data-status="ממתין"] { background-color: #F58221; } /* כתום לסטטוס ממתין */
+
+        /* אנימציית הבהוב */
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.6), 0 0 10px rgba(255, 255, 255, 0.4); }
+            50% { box-shadow: 0 0 15px rgba(255, 255, 255, 0.9), 0 0 25px rgba(255, 255, 255, 0.7); }
+            100% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.6), 0 0 10px rgba(255, 255, 255, 0.4); }
         }
-        button[type="submit"].coming:hover {
-            background-color: #45a049;
+
+        /* קלאס לכפתור פעיל/זוהר */
+        .status-button.active {
+            transform: scale(1.05);
+            animation: glow 1.5s infinite alternate; /* הפעלת האנימציה */
+            /* הגדרת צל מותאם לצבע הכפתור בתוך ה-JS */
         }
-        button[type="submit"].not_coming {
-            background-color: #f44336;
+
+        /* כפתור שמירה סופי */
+        .submit-button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 20px;
         }
-        button[type="submit"].not_coming:hover {
-            background-color: #d32f2f;
+
+        .submit-button:hover {
+            background-color: #0056b3;
         }
+
         .message {
             margin-top: 20px;
             padding: 10px;
@@ -238,11 +267,11 @@
             h1 {
                 font-size: 1.5rem;
             }
-            .button-group {
+            .status-buttons {
                 flex-direction: column;
                 gap: 10px;
             }
-            button {
+            .status-button {
                 max-width: 100%;
             }
         }
@@ -275,14 +304,19 @@
             <form id="attendanceForm">
                 <div class="form-group">
                     <label for="full_name">שם מלא:</label>
-                    <input type="text" id="full_name" name="full_name" required readonly> </div>
+                    <input type="text" id="full_name" name="full_name" required> </div>
                 <div class="form-group">
                     <label for="email">אימייל:</label>
                     <input type="email" id="email" name="email" required readonly> </div>
-                <div class="button-group">
-                    <button type="submit" class="coming">מגיע/ה</button>
-                    <button type="submit" class="not_coming">לא מגיע/ה</button>
+                <div class="form-group">
+                    <label>סטטוס הגעה:</label>
+                    <div class="status-buttons">
+                        <button type="button" class="status-button" data-status="ממתין">ממתין</button>
+                        <button type="button" class="status-button" data-status="מגיע/ה">מגיע/ה</button>
+                        <button type="button" class="status-button" data-status="לא מגיע/ה">לא מגיע/ה</button>
+                    </div>
                 </div>
+                <button type="submit" class="submit-button">שמור שינויים</button>
             </form>
         </div>
     </div>
@@ -310,7 +344,7 @@
         const loadingScreen = document.getElementById('loading-screen');
         const mainContentWrapper = document.getElementById('main-content-wrapper');
         const searchContainer = document.getElementById('search-container');
-        const attendanceFormContainer = document.getElementById('attendance-form-container'); // הטופס החדש
+        const attendanceFormContainer = document.getElementById('attendance-form-container'); 
         const fullNameSearchInput = document.getElementById('fullNameSearch');
         const searchButton = document.getElementById('searchButton');
         const searchMessageDiv = document.getElementById('searchMessage');
@@ -319,8 +353,10 @@
         const fullNameInput = document.getElementById('full_name');
         const emailInput = document.getElementById('email');
         const responseMessageDiv = document.getElementById('responseMessage');
+        const statusButtons = document.querySelectorAll('.status-button'); // כל כפתורי הסטטוס
 
         let currentGuestDocId = null; // ישמור את ה-Document ID (האימייל) של האורח שנמצא
+        let selectedAttendanceStatus = 'ממתין'; // סטטוס הגעה נבחר, ברירת מחדל "ממתין"
 
         // --- פונקציות עזר ---
         function showMessage(message, type, targetDiv) {
@@ -336,13 +372,22 @@
             })
             .then(function(response) {
                 console.log('SUCCESS!', response.status, response.text);
-                // הודעת הצלחה ספציפית למייל - כעת תוצג אחרי שהנתונים נשמרו בהצלחה ב-DB
                 showMessage('תודה, סטטוס ההגעה שלך נקלט בהצלחה! נשלחה הודעת מייל. בדוק את תיבת הספאם, עדכונים נוספים יישלחו באימייל.', 'success', responseMessageDiv);
             }, function(error) {
                 console.log('FAILED...', error);
-                // הודעת שגיאה אם המייל לא נשלח, אבל הנתונים נשמרו ב-DB
                 showMessage('סטטוס ההגעה נשמר, אך אירעה שגיאה בשליחת המייל. אנא פנה לעמית מטיאס אם לא קיבלת אישור.', 'error', responseMessageDiv);
             });
+        }
+
+        function highlightStatusButton(status) {
+            statusButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+            const activeButton = document.querySelector(`.status-button[data-status="${status}"]`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+            selectedAttendanceStatus = status; // עדכון המשתנה הגלובלי
         }
 
         // --- לוגיקת מסך טעינה ---
@@ -351,8 +396,8 @@
                 loadingScreen.classList.add('hidden');
                 loadingScreen.addEventListener('transitionend', function() {
                     loadingScreen.style.display = 'none';
-                    document.body.style.overflow = 'auto'; // החזרת גלילה במידת הצורך
-                    mainContentWrapper.style.display = 'flex'; // הצגת הקונטיינר הראשי עם מסך החיפוש
+                    document.body.style.overflow = 'auto'; 
+                    mainContentWrapper.style.display = 'flex'; 
                 }, { once: true });
             }, 2000); // 2 שניות טעינה
         });
@@ -365,10 +410,9 @@
                 return;
             }
 
-            showMessage('מחפש...', '', searchMessageDiv); // הודעת חיפוש
+            showMessage('מחפש...', '', searchMessageDiv); 
 
             try {
-                // חיפוש במסמכים בקולקציה 'bar_mizzva_attendees' לפי השדה 'full_name'
                 const querySnapshot = await db.collection(FIRESTORE_COLLECTION_NAME)
                                             .where('full_name', '==', searchTerm)
                                             .limit(1)
@@ -377,16 +421,18 @@
                 if (!querySnapshot.empty) {
                     const doc = querySnapshot.docs[0];
                     const guestData = doc.data();
-                    currentGuestDocId = doc.id; // שמירת ה-Document ID (האימייל)
+                    currentGuestDocId = doc.id; 
 
-                    // הסתרת מסך החיפוש והצגת טופס אישור הגעה
                     searchContainer.style.display = 'none';
                     attendanceFormContainer.style.display = 'flex';
 
-                    // מילוי שדות הטופס בפרטים שנמצאו
                     fullNameInput.value = guestData.full_name;
                     emailInput.value = guestData.email;
-                    showMessage('נמצאו הפרטים שלך! כעת תוכל לאשר הגעה.', 'success', responseMessageDiv);
+                    
+                    // הדגש את כפתור הסטטוס הנוכחי מה-Firestore (ברירת מחדל "ממתין")
+                    highlightStatusButton(guestData.attendance || 'ממתין'); 
+
+                    showMessage('נמצאו הפרטים שלך! כעת תוכל לאשר הגעה ולעדכן את שמך אם יש צורך.', 'success', responseMessageDiv);
                 } else {
                     showMessage(`השם "${searchTerm}" לא נמצא במערכת. ודא שאייתת נכון.`, 'error', searchMessageDiv);
                 }
@@ -396,53 +442,48 @@
             }
         });
 
+        // --- לוגיקת בחירת סטטוס הגעה ---
+        statusButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const status = this.dataset.status;
+                highlightStatusButton(status);
+            });
+        });
+
         // --- לוגיקת שמירת/עדכון סטטוס הגעה ---
         attendanceForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const full_name = fullNameInput.value.trim();
-            const email = emailInput.value.trim();
+            const email = emailInput.value.trim(); // האימייל הוא עדיין ה-docId ואינו ניתן לעריכה
             
-            // וודא ש-currentGuestDocId קיים (כלומר, אורח נמצא)
             if (!currentGuestDocId) {
                 showMessage('שגיאה: לא נבחר אורח לעדכון. אנא חפש שוב את שמך.', 'error', responseMessageDiv);
                 return;
             }
-
-            const submitter = e.submitter;
-            let attendance = '';
-            if (submitter.classList.contains('coming')) {
-                attendance = 'מגיע/ה';
-            } else if (submitter.classList.contains('not_coming')) {
-                attendance = 'לא מגיע/ה';
-            } else {
-                showMessage('שגיאה: יש לבחור סטטוס הגעה.', 'error', responseMessageDiv);
+            if (!full_name || !email) {
+                showMessage('שם מלא ואימייל נדרשים.', 'error', responseMessageDiv);
                 return;
             }
 
             const attendeeData = {
-                full_name: full_name,
-                email: email,
-                attendance: attendance,
+                full_name: full_name, // השם המלא נלקח מהשדה שניתן לעריכה
+                email: email, 
+                attendance: selectedAttendanceStatus, // סטטוס הגעה נלקח מהכפתור המודגש
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
 
-            showMessage('שומר שינויים...', '', responseMessageDiv); // הודעת שמירה
+            showMessage('שומר שינויים...', '', responseMessageDiv); 
 
             try {
                 // שמירה/עדכון המסמך לפי ה-Document ID (האימייל)
-                // ה-Document ID הוא currentGuestDocId שנשמר מחיפוש האורח
                 await db.collection(FIRESTORE_COLLECTION_NAME).doc(currentGuestDocId).set(attendeeData);
                 
-                // אם המשתמש מאשר הגעה, שלח אימייל
-                if (attendance === 'מגיע/ה') {
+                if (selectedAttendanceStatus === 'מגיע/ה') {
                     sendConfirmationEmail(email, full_name);
                 } else {
                     showMessage('תודה, סטטוס ההגעה שלך נקלט בהצלחה!', 'success', responseMessageDiv);
                 }
-
-                // ניתן להוסיף כאן לוגיקה לניקוי הטופס או הפניה מחדש
-                // attendanceForm.reset(); // לא מומלץ לנקות אוטומטית אם המשתמש רוצה לראות את האישור
             } catch (error) {
                 console.error("Error writing document: ", error);
                 showMessage(`שגיאה בעת שמירת הנתונים: ${error.message}`, 'error', responseMessageDiv);
