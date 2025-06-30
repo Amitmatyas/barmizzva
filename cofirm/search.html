@@ -226,26 +226,9 @@
             animation: glow-red 1.5s infinite alternate;
         }
 
-        /* כפתור שמירה ליד השדה */
+        /* כפתור שמירה ליד השדה - הסרנו את התצוגה כי השמירה אוטומטית */
         .save-field-button {
-            background-color: #007bff;
-            color: white;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            font-size: 0.9em;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            position: absolute; /* מיקום מוחלט */
-            left: 0; /* בצד שמאל (בגלל RTL) */
-            top: 50%; /* ממורכז אנכית */
-            transform: translateY(-50%);
-            margin-right: 5px; /* רווח מהשדה */
-            display: none; /* מוסתר כברירת מחדל */
-            white-space: nowrap; /* מונע שבירת שורה */
-        }
-        .save-field-button:hover {
-            background-color: #0056b3;
+            display: none; /* מוסתר תמיד */
         }
 
         .message {
@@ -319,12 +302,10 @@
                 <div class="form-group">
                     <label for="full_name">שם מלא:</label>
                     <input type="text" id="full_name" name="full_name" required>
-                    <button type="button" class="save-field-button" data-field="full_name">שמור</button>
                 </div>
                 <div class="form-group">
                     <label for="email">אימייל:</label>
                     <input type="email" id="email" name="email" required>
-                    <button type="button" class="save-field-button" data-field="email">שמור</button>
                 </div>
                 <div class="form-group">
                     <label>סטטוס הגעה:</label>
@@ -333,12 +314,12 @@
                         <button type="button" class="status-button" data-status="לא מגיע/ה">לא מגיע/ה</button>
                     </div>
                 </div>
-                </form>
+            </form>
         </div>
     </div>
 
     <script>
-        // --- הגדרות Firebase ו-EmailJS ---
+        // --- Firebase and EmailJS Settings ---
         const firebaseConfig = {
             apiKey: "AIzaSyDlyDbpwcBcWvFnvYHb84dMEpaQFTjv-HY",
             authDomain: "tester-69fa9.firebaseapp.com",
@@ -352,11 +333,11 @@
         const EMAILJS_SERVICE_ID = 'service_laxsrg8';
         const EMAILJS_TEMPLATE_ID = 'barmizzva';
         
-        // אתחול Firebase
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // --- אלמנטים ב-DOM ---
+        // --- DOM Elements ---
         const loadingScreen = document.getElementById('loading-screen');
         const mainContentWrapper = document.getElementById('main-content-wrapper');
         const searchContainer = document.getElementById('search-container');
@@ -370,17 +351,15 @@
         const emailInput = document.getElementById('email'); 
         const responseMessageDiv = document.getElementById('responseMessage');
         const statusButtons = document.querySelectorAll('.status-button');
-        const saveFullNameButton = document.querySelector('.save-field-button[data-field="full_name"]'); 
-        const saveEmailButton = document.querySelector('.save-field-button[data-field="email"]'); // כפתור שמור ליד האימייל
 
         let currentGuestDocId = null; 
         let initialFullName = ''; 
         let initialAttendanceStatus = ''; 
-        let initialEmail = ''; // לשמירת האימייל המקורי
+        let initialEmail = ''; 
         let selectedAttendanceStatus = ''; 
         let debounceTimeout; 
 
-        // --- פונקציות עזר ---
+        // --- Helper Functions ---
         function showMessage(message, type, targetDiv) {
             targetDiv.textContent = message;
             targetDiv.className = 'message ' + type;
@@ -388,6 +367,12 @@
             setTimeout(() => {
                 targetDiv.style.display = 'none';
             }, 5000); 
+        }
+
+        // Basic email validation regex
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(email).toLowerCase());
         }
 
         function sendConfirmationEmail(email, full_name) {
@@ -419,6 +404,14 @@
                 return;
             }
 
+            if (isEmailUpdate) {
+                const newEmail = fieldsToUpdate.email;
+                if (!isValidEmail(newEmail)) {
+                    showMessage('שגיאה: פורמט אימייל לא תקין.', 'error', responseMessageDiv);
+                    return; // Prevent saving if email is invalid
+                }
+            }
+
             try {
                 if (isEmailUpdate) {
                     const newEmail = fieldsToUpdate.email;
@@ -444,14 +437,12 @@
                     });
                     currentGuestDocId = newEmail; // Update currentGuestDocId to the new email
                     initialEmail = newEmail; // Update initialEmail
-                    saveEmailButton.style.display = 'none'; // Hide the save button for email
                     showMessage('האימייל עודכן בהצלחה!', 'success', responseMessageDiv);
                 } else {
                     await db.collection(FIRESTORE_COLLECTION_NAME).doc(currentGuestDocId).update(fieldsToUpdate);
                     
                     if (fieldsToUpdate.full_name) {
                         initialFullName = fieldsToUpdate.full_name;
-                        saveFullNameButton.style.display = 'none'; 
                     }
                     if (fieldsToUpdate.attendance) {
                         initialAttendanceStatus = fieldsToUpdate.attendance;
@@ -468,7 +459,7 @@
             }
         }
 
-        // --- לוגיקת מסך טעינה ---
+        // --- Loading Screen Logic ---
         document.addEventListener("DOMContentLoaded", function() {
             setTimeout(function() {
                 loadingScreen.classList.add('hidden');
@@ -480,7 +471,7 @@
             }, 2000); 
         });
 
-        // --- לוגיקת חיפוש אורח ---
+        // --- Guest Search Logic ---
         searchButton.addEventListener('click', async () => {
             const searchTerm = fullNameSearchInput.value.trim();
             if (!searchTerm) {
@@ -492,9 +483,9 @@
 
             try {
                 const querySnapshot = await db.collection(FIRESTORE_COLLECTION_NAME)
-                                                .where('full_name', '==', searchTerm)
-                                                .limit(1)
-                                                .get();
+                                             .where('full_name', '==', searchTerm)
+                                             .limit(1)
+                                             .get();
 
                 if (!querySnapshot.empty) {
                     const doc = querySnapshot.docs[0];
@@ -508,7 +499,7 @@
                     emailInput.value = guestData.email;
                     
                     initialFullName = guestData.full_name;
-                    initialEmail = guestData.email; // Store the initial email
+                    initialEmail = guestData.email; 
                     initialAttendanceStatus = guestData.attendance || 'לא מוגדר'; 
 
                     highlightStatusButton(guestData.attendance || 'מגיע/ה'); 
@@ -524,17 +515,11 @@
             }
         });
 
-        // --- לוגיקת שמירה אוטומטית לשם מלא (Debounce) ---
+        // --- Auto-save Logic for Full Name (Debounce) ---
         fullNameInput.addEventListener('input', () => {
             clearTimeout(debounceTimeout); 
             const currentFullName = fullNameInput.value.trim();
             
-            if (currentFullName !== initialFullName) {
-                saveFullNameButton.style.display = 'block';
-            } else {
-                saveFullNameButton.style.display = 'none';
-            }
-
             debounceTimeout = setTimeout(() => {
                 if (currentFullName !== initialFullName && currentGuestDocId) {
                     saveGuestData({ full_name: currentFullName, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
@@ -542,43 +527,19 @@
             }, 1000); 
         });
 
-        // --- לוגיקת שמירה מיידית עבור כפתור שמירה ליד השם ---
-        saveFullNameButton.addEventListener('click', () => {
-            clearTimeout(debounceTimeout); 
-            const currentFullName = fullNameInput.value.trim();
-            if (currentFullName !== initialFullName && currentGuestDocId) {
-                saveGuestData({ full_name: currentFullName, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-            }
-        });
-
-        // --- לוגיקת שמירה אוטומטית לאימייל (Debounce) ---
+        // --- Auto-save Logic for Email (Debounce) ---
         emailInput.addEventListener('input', () => {
             clearTimeout(debounceTimeout); 
             const currentEmail = emailInput.value.trim();
             
-            if (currentEmail !== initialEmail) {
-                saveEmailButton.style.display = 'block';
-            } else {
-                saveEmailButton.style.display = 'none';
-            }
-
             debounceTimeout = setTimeout(() => {
                 if (currentEmail !== initialEmail && currentGuestDocId) {
-                    saveGuestData({ email: currentEmail }, true); // Pass true to indicate email update
+                    saveGuestData({ email: currentEmail }, true); 
                 }
             }, 1000); 
         });
 
-        // --- לוגיקת שמירה מיידית עבור כפתור שמירה ליד האימייל ---
-        saveEmailButton.addEventListener('click', () => {
-            clearTimeout(debounceTimeout); 
-            const currentEmail = emailInput.value.trim();
-            if (currentEmail !== initialEmail && currentGuestDocId) {
-                saveGuestData({ email: currentEmail }, true); // Pass true to indicate email update
-            }
-        });
-
-        // --- לוגיקת שמירה מיידית לסטטוס הגעה ---
+        // --- Instant Save Logic for Attendance Status ---
         statusButtons.forEach(button => {
             button.addEventListener('click', async function() {
                 const status = this.dataset.status;
@@ -590,7 +551,7 @@
             });
         });
 
-        // מונע את שליחת הטופס הכללית (כי השמירה היא אוטומטית)
+        // Prevents general form submission (as saving is automatic)
         attendanceForm.addEventListener('submit', (e) => {
             e.preventDefault();
         });
