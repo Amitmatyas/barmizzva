@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>תפריט קיץ - בר המצווה של עמית מטיאס</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
+    <style>
+        body {
+            font-family: 'Heebo', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f7fdfb; /* Light summer background */
+            text-align: center;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            color: #333;
+        }
+
+        /* --- Loading Screen --- */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f7fdfb;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            max-width: 450px;
+            width: 90%;
+            box-sizing: border-box;
+            animation: bounceIn 0.8s ease-out forwards;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .loading-logo {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 25px;
+            animation: fadeInScale 1.5s ease-out forwards;
+        }
+
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .loading-title {
+            color: #2a9d8f; /* A refreshing green */
+            margin-bottom: 10px;
+            font-size: 2.2em;
+            font-weight: 700;
+            animation: slideInUp 1s ease-out forwards;
+            animation-delay: 0.3s;
+        }
+
+        /* --- Content Container --- */
+        #content-container {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+            padding: 30px 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            justify-content: flex-start; /* Align content to start for better flow */
+            align-items: center;
+            flex-direction: column;
+            opacity: 0; /* Hidden initially, fades in */
+            transition: opacity 1s ease-in;
+        }
+
+        #content-container.visible {
+            opacity: 1;
+        }
+
+        .menu-header {
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 1s ease-out forwards;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .menu-logo-main {
+            max-width: 180px; /* Slightly larger logo for the main menu */
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .menu-title {
+            font-size: 3.5em;
+            color: #264653; /* Dark blue-green */
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .bar-mitzvah-text {
+            font-size: 1.5em;
+            color: #e9c46a; /* Golden yellow */
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .menu-section {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+            max-width: 800px;
+            width: 100%;
+            text-align: right; /* RTL support */
+            opacity: 0; /* Hidden initially for animation */
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .menu-section.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-title {
+            font-size: 2.5em;
+            color: #2a9d8f; /* Refreshing green */
+            margin-bottom: 25px;
+            border-bottom: 3px solid #f4a261; /* Orange underline */
+            padding-bottom: 10px;
+            display: inline-block; /* To make border-bottom apply only to text width */
+        }
+
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #eee;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .item-details {
+            flex-grow: 1;
+            text-align: right;
+            padding-right: 15px; /* Space for item name */
+        }
+
+        .item-name {
+            font-size: 1.6em;
+            color: #264653;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .item-description {
+            font-size: 1.1em;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .price-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end; /* Align price and VIP text to the right */
+            white-space: nowrap;
+            margin-left: 15px; /* Space between description and price */
+        }
+
+        .item-price {
+            font-size: 1.5em;
+            color: #e76f51; /* Warm orange */
+            font-weight: 700;
+            direction: ltr; /* Ensure price numbers are LTR */
+        }
+
+        .vip-note {
+            font-size: 0.9em; /* Slightly smaller than default text */
+            color: #555;
+            margin-top: 2px;
+            font-weight: normal;
+        }
+
+        .disclaimer {
+            margin-top: 40px;
+            font-size: 1.0em; /* 5px less than standard body font size if 16px is standard */
+            color: #777;
+            text-align: center;
+            animation: fadeIn 1s ease-out forwards;
+            animation-delay: 1.5s;
+        }
+
+        /* --- Responsive Adjustments --- */
+        @media (max-width: 768px) {
+            .loading-container {
+                padding: 20px;
+            }
+            .loading-logo {
+                max-width: 100px;
+            }
+            .loading-title {
+                font-size: 1.8em;
+            }
+
+            .menu-header {
+                margin-bottom: 30px;
+            }
+            .menu-logo-main {
+                max-width: 120px;
+            }
+            .menu-title {
+                font-size: 2.5em;
+            }
+            .bar-mitzvah-text {
+                font-size: 1.2em;
+            }
+            .menu-section {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            .section-title {
+                font-size: 2em;
+                margin-bottom: 20px;
+            }
+            .menu-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .item-details {
+                padding-right: 0;
+                margin-bottom: 10px;
+            }
+            .item-name {
+                font-size: 1.4em;
+            }
+            .item-description {
+                font-size: 1em;
+            }
+            .price-info {
+                align-items: flex-start; /* Align price and VIP text to the left on mobile */
+                margin-left: 0;
+            }
+            .item-price {
+                font-size: 1.3em;
+            }
+            .vip-note {
+                font-size: 0.8em;
+            }
+            .disclaimer {
+                font-size: 0.9em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .menu-title {
+                font-size: 2em;
+            }
+            .bar-mitzvah-text {
+                font-size: 1em;
+            }
+            .section-title {
+                font-size: 1.8em;
+            }
+            .item-name {
+                font-size: 1.2em;
+            }
+            .item-description {
+                font-size: 0.9em;
+            }
+            .item-price {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div class="loading-container">
+            <img src="https://i.postimg.cc/1zr32mFp/Planet-Logo-Israel-cinema-svg-1.png" alt="לוגו" class="loading-logo">
+            <h1 class="loading-title">תפריט קיץ</h1>
+        </div>
+    </div>
+
+    <div id="content-container">
+        <header class="menu-header">
+            <img src="https://i.postimg.cc/1zr32mFp/Planet-Logo-Israel-cinema-svg-1.png" alt="לוגו" class="menu-logo-main">
+            <h1 class="menu-title">תפריט קיץ</h1>
+            <p class="bar-mitzvah-text">לכבוד בר המצווה של עמית מטיאס</p>
+        </header>
+
+        <section class="menu-section" id="breads">
+            <h2 class="section-title">לחמים ומטבלים</h2>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">מבחר סוגי לחמים</div>
+                    <div class="item-description">פוקאצ'ה איטלקית משוחה בשמן זית כתית בכבישה קרה ומבחר לחמניות ביס קמח מלא/לבן.</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">טחינה הר ברכה</div>
+                    <div class="item-description">עם נגיעות סומק.</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">נתחי טונה בהירה</div>
+                    <div class="item-description">ירקות קצוצים, צ'ילי אדום ועשבי תיבול.</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">גבינת שמנת זיתים</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">איולי פלפלים קלויים ושקדים</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">זיתים מתובלים</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">יוגורט ושמנת חמוצה</div>
+                    <div class="item-description">עם סחוג ירוק.</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="menu-section" id="salads">
+            <h2 class="section-title">סלטים טריים</h2>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">סלט בהרכבה</div>
+                    <div class="item-description">לבבות חסה אייסברג, עגבניות שרי, מלפפונים, פלפלים צבעוניים, שבבי גזר. מוגש לצד ויניגרט הדרים, שמן זית ומיץ לימון, או רוטב אלף האיים.</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">סלט כרוב לבן</div>
+                    <div class="item-description">פטרוזיליה וחמוציות אדומות בתיבול לימון ושמן זית.</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">סלט שוק צבעוני</div>
+                    <div class="item-description">מבחר ירקות העונה, קרוטונים ורוטב יוגורט.</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">סלט קינואה אדומה</div>
+                    <div class="item-description">עם קוביות בטטה צלויות, אגוזי פקאן, עשבים, שמן זית, לימון וטחינה.</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">סלט קולורבי ומלפפון</div>
+                    <div class="item-description">חתוכים לרצועות דקות, עם שומשום שחור בתיבול שום כתוש, שמן שומשום ולימון.</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">סלט חסה לליק</div>
+                    <div class="item-description">זוקיני צלוי, אגוזי מלך קלויים, ויניגרט וגבינה כחולה.</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="menu-section" id="hot-buffet">
+            <h2 class="section-title">מזנון חם</h2>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">בטטה אפויה</div>
+                    <div class="item-description">בתנור עם טחינה, פטרוזיליה וגבינת פטה.</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">נודלס ירקות</div>
+                    <div class="item-description">בטריאקי וג'ינג'ר.</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">הום-פרייז</div>
+                    <div class="item-description">ברוטב צ'ילי.</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="menu-section" id="pasta-pizza">
+            <h2 class="section-title">פיצות ופסטות</h2>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">פסטה פנה</div>
+                    <div class="item-description">מוגשת לצד רוטב שמנת קשקבל או רוטב עגבניות מושחמות צרובות עם עשבי תיבול.</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">פיצות מרגריטה</div>
+                    <div class="item-description">במבחר תוספות משתנות.</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="menu-section" id="desserts">
+            <h2 class="section-title">קינוחים מתוקים</h2>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">פחזניות</div>
+                    <div class="item-description">בקרסט גבישי סוכר במילוי קרם וניל.</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">סופלה שוקולד חם</div>
+                    <div class="item-description">במילוי שוקולד לבן.</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">מוס מילקי</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">ריבועי קראק פאי</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">בראוניז באונטי</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">פירות מרעננים</div>
+                    <div class="item-description">אבטיח ומלון.</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="menu-section" id="extras">
+            <h2 class="section-title">פינוקים נוספים ללא הגבלה</h2>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">פופקורן</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">נאצ'וס</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">גלידות בן אנד ג'ריס</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">שתייה קלה</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">שתייה חמה</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+            <div class="menu-item">
+                <div class="item-details">
+                    <div class="item-name">יין מבעבע</div>
+                    <div class="item-description">לגילאי 18+ בלבד.</div>
+                </div>
+                <div class="price-info">
+                    <div class="item-price">0 ₪</div>
+                    <div class="vip-note">כלול ב-VIP</div>
+                </div>
+            </div>
+        </section>
+
+        <p class="disclaimer">* התפריט נתון לשינויים</p>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const loadingScreen = document.getElementById('loading-screen');
+            const contentContainer = document.getElementById('content-container');
+            const menuSections = document.querySelectorAll('.menu-section');
+
+            // --- Loading Screen Logic ---
+            setTimeout(function() {
+                loadingScreen.classList.add('hidden');
+                loadingScreen.addEventListener('transitionend', function() {
+                    loadingScreen.style.display = 'none';
+                    document.body.style.overflowY = 'auto'; // Re-enable scrolling
+
+                    // Show content container with fade-in
+                    contentContainer.style.display = 'flex';
+                    setTimeout(() => {
+                        contentContainer.classList.add('visible');
+                    }, 50); // Small delay to allow display:flex to apply before opacity transition
+
+                    // --- Intersection Observer for Scroll Animations ---
+                    const observer = new IntersectionObserver(entries => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('animate');
+                                // Optional: if you want to animate only once, uncomment the line below
+                                // observer.unobserve(entry.target);
+                            }
+                            // To make them disappear when scrolled out, you would add an else here:
+                            // else {
+                            //     entry.target.classList.remove('animate');
+                            // }
+                        });
+                    }, {
+                        threshold: 0.1 // Trigger when 10% of the section is visible
+                    });
+
+                    menuSections.forEach(section => {
+                        observer.observe(section);
+                    });
+
+                }, { once: true });
+            }, 3000); // 3 seconds loading time
+        });
+    </script>
+
+</body>
+</html>
