@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>אישורי הגעה הסתיימו</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗓️</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Heebo', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0e68c, #add8e6); /* צבעי רקע נעימים */
+            color: #333;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 90%;
+            animation: fadeIn 1s ease-out forwards;
+            position: relative;
+            z-index: 1;
+            direction: rtl; /* יישור מימין לשמאל לכל התוכן בקונטיינר */
+        }
+
+        h1 {
+            color: #4a4a4a;
+            font-size: 2.8em;
+            margin-bottom: 20px;
+            animation: pulse 1.5s infinite alternate; /* אנימציה של הבהוב */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        p {
+            font-size: 1.3em;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #555;
+        }
+
+        .details {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-top: 30px;
+            color: #6a5acd; /* צבע סגול יפה */
+        }
+
+        .details span {
+            display: block;
+            margin-top: 10px;
+        }
+
+        .button-group {
+            margin-top: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center; /* יישור מרכזי של התוכן בתוך הכפתור */
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            opacity: 0.9;
+        }
+
+        .button img {
+            height: 24px; /* גודל הלוגו */
+            margin-right: 10px; /* רווח בין הטקסט ללוגו - בצד ימין */
+            margin-left: 0; /* וודא שאין רווח שמאלי מיותר */
+            vertical-align: middle;
+            order: 1; /* מציב את התמונה מצד ימין של הטקסט בכפתור */
+        }
+
+        .button span {
+            order: 2; /* מציב את הטקסט מצד שמאל של התמונה בכפתור */
+        }
+
+        .google-calendar-button {
+            background-color: #db4437; /* צבע גוגל אדום */
+        }
+
+        .waze-button {
+            background-color: #32a852; /* ירוק וייז */
+        }
+
+        .payment-button {
+            background-color: #8a2be2; /* סגול לתשלום */
+        }
+
+        .copy-message {
+            margin-top: 15px;
+            color: #28a745;
+            font-weight: bold;
+            display: none; /* נסתר בתחילה */
+        }
+
+        /* אנימציות */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            100% {
+                transform: scale(1.02);
+                text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.15);
+            }
+        }
+
+        /* עיצוב נוסף לרקע */
+        .bubble {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 10s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .bubble:nth-child(1) { width: 60px; height: 60px; top: 20%; left: 15%; animation-duration: 12s; }
+        .bubble:nth-child(2) { width: 80px; height: 80px; top: 70%; left: 80%; animation-duration: 15s; animation-delay: 2s; }
+        .bubble:nth-child(3) { width: 40px; height: 40px; top: 40%; left: 5%; animation-duration: 10s; animation-delay: 1s; }
+        .bubble:nth-child(4) { width: 70px; height: 70px; top: 10%; left: 60%; animation-duration: 13s; animation-delay: 3s; }
+        .bubble:nth-child(5) { width: 50px; height: 50px; top: 85%; left: 30%; animation-duration: 11s; animation-delay: 0.5s; }
+
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0); opacity: 0.8; }
+            50% { transform: translateY(-20px) translateX(10px); opacity: 0.5; }
+            100% { transform: translateY(0) translateX(0); opacity: 0.8; }
+        }
+
+        /* מדיה קווריות להתאמה למובייל */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2em;
+            }
+            p {
+                font-size: 1.1em;
+            }
+            .details {
+                font-size: 1.2em;
+            }
+            .button {
+                font-size: 1em;
+                padding: 12px 20px;
+            }
+            .button img {
+                margin-right: 5px; /* הקטנת רווח לוגו במובייל */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+    <div class="bubble"></div>
+
+    <div class="container">
+        <h1>אישורי ההגעה הסתיימו</h1>
+        <p>אשמח לראותכם באירוע!</p>
+        <p class="details">
+            **מיקום**: <span>יס פלאנט - חיפה, מתחם ה-VIP</span>
+            **שעה**: <span>17:30</span>
+        </p>
+
+        <div class="button-group">
+            <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&dates=20250710T143000Z%2F20250710T173000Z&location=%D7%99%D7%A1%20%D7%A4%D7%9C%D7%90%D7%A0%D7%98%20%D7%97%D7%99%D7%A4%D7%94%2C%20%D7%A1%D7%99%D7%A0%D7%9E%D7%95%D7%9C%2C%20%D7%A9%D7%93%D7%A8%D7%95%D7%AA%20%D7%94%D7%94%D7%A1%D7%AA%D7%93%D7%A8%D7%95%D7%AA%2055%2C%20%D7%97%D7%99%D7%A4%D7%94%2C%20%D7%99%D7%A9%D7%A8%D7%90%D7%9C&text=%D7%91%D7%A8%20%D7%9E%D7%A6%D7%95%D7%95%D7%94%20%D7%9C%D7%A2%D7%9E%D7%99%D7%AA%20%D7%9E%D7%98%D7%99%D7%90%D7%A1"
+               target="_blank" class="button google-calendar-button">
+                <span>הוספה ליומן גוגל</span>
+                <img src="https://i.imgur.com/CB9uybL.png" alt="לוגו גוגל קלנדר">
+            </a>
+
+            <a href="https://www.waze.com/he/live-map/directions/yes-planet-%D7%99%D7%A1-%D7%A4%D7%9C%D7%90%D7%A0%D7%98-%D7%A9%D7%93-%D7%94%D7%94%D7%A1%D7%AA%D7%93%D7%A8%D7%95%D7%AA-55-%D7%97%D7%99%D7%A4%D7%94?to=place.w.22937928.229641423.195895"
+               target="_blank" class="button waze-button">
+                <span>ניווט עם Waze</span>
+                <img src="https://i.postimg.cc/JzrrZt8p/waze.png" alt="לוגו Waze">
+            </a>
+
+            <button class="button payment-button" onclick="copyPhoneNumber()">
+                <span>תשלום ב-Bit / PayBox</span>
+            </button>
+            <div id="copyMessage" class="copy-message">מספר הטלפון הועתק!</div>
+        </div>
+    </div>
+
+    <script>
+        function copyPhoneNumber() {
+            const phoneNumber = "0506232870";
+            navigator.clipboard.writeText(phoneNumber).then(() => {
+                const messageElement = document.getElementById("copyMessage");
+                messageElement.style.display = "block";
+                setTimeout(() => {
+                    messageElement.style.display = "none";
+                }, 3000); // הסתר את ההודעה אחרי 3 שניות
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                alert('אירעה שגיאה בהעתקת המספר. אנא נסו שוב.');
+            });
+        }
+    </script>
+</body>
+</html>
